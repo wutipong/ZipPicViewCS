@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -9,6 +10,9 @@ namespace ZipPicViewCS
 {
     public partial class MainForm : Form
     {
+        private string[] fileList = null;
+        private int selectedIndex = 0;
+
         public MainForm()
         {
             InitializeComponent();
@@ -29,6 +33,23 @@ namespace ZipPicViewCS
                 folderBox.Items.AddRange(this.MediaProvider.FolderEntries);
                 
                 folderBox.SelectedIndex = 0;
+            }
+        }
+
+        public int SelectedIndex
+        {
+            get
+            {
+                return selectedIndex;
+            }
+
+            set
+            {
+                selectedIndex = value;
+                var stream = MediaProvider.OpenEntry(fileList[selectedIndex]);
+                var image = Image.FromStream(stream);
+
+                viewerPictureBox.Image = image;
             }
         }
 
@@ -72,20 +93,7 @@ namespace ZipPicViewCS
             if (results != DialogResult.OK) return;
 
             this.MediaProvider = new ArchiveMediaProvider(openFileDialog.FileName);
-            this.Text = openFileDialog.FileName;
-        }
-
-        public override string Text
-        {
-            get
-            {
-                return base.Text;
-            }
-
-            set
-            {
-                base.Text = String.Format("ZipPicView : {0}", value);
-            }
+            pathLabel.Text = openFileDialog.FileName;
         }
 
         private void toolStripComboBox1_Click(object sender, EventArgs e)
@@ -95,10 +103,12 @@ namespace ZipPicViewCS
 
         private void folderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var result = folderBrowserDialog.ShowDialog();
-            if (result != DialogResult.OK) return;
-            this.MediaProvider = new FileSystemMediaProvider(folderBrowserDialog.SelectedPath);
-            this.Text = folderBrowserDialog.SelectedPath;
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
+            this.MediaProvider = new FileSystemMediaProvider(dialog.FileName);
+            pathLabel.Text = dialog.FileName;
         }
 
         private void folderBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -112,7 +122,7 @@ namespace ZipPicViewCS
 
         private void RecreateThumbnail()
         {
-            var fileList = this.MediaProvider.GetChildEntries(folderBox.SelectedItem.ToString());
+            fileList = this.MediaProvider.GetChildEntries(folderBox.SelectedItem.ToString());
 
             var buttonList = new List<Button>();
             try
@@ -129,6 +139,7 @@ namespace ZipPicViewCS
                     button.Size = new Size(200, 200);
                     button.TextAlign = ContentAlignment.BottomCenter;
                     button.Name = file;
+                    button.Click += ImageButton_Click;
 
                     stream.Close();
 
@@ -150,14 +161,20 @@ namespace ZipPicViewCS
             }
         }
 
+        private void ImageButton_Click(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+
+            SelectedIndex = Array.IndexOf(fileList, button.Name);
+            tabControl1.SelectedIndex = 1;
+        }
+
         private void thumbnailBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
             var entry = e.Argument as string;
             try
             {
-                var fileList = this.MediaProvider.GetChildEntries(entry);
-
                 for (int i = 0; i<fileList.Length; i++)
                 {
                     var file = fileList[i];
@@ -204,6 +221,23 @@ namespace ZipPicViewCS
         {
             if (!e.Cancelled) thumbnailProgressBar.Value = 100;
             else RecreateThumbnail();
+        }
+
+        private void zoomFitButton_Click(object sender, EventArgs e)
+        {
+            viewerPictureBox.SizeMode = zoomFitButton.Checked ? PictureBoxSizeMode.Zoom : PictureBoxSizeMode.AutoSize;
+        }
+
+        private void toolStripButton2_Click(object sender, EventArgs e)
+        {
+            if (SelectedIndex == 0) SelectedIndex = fileList.Length - 1;
+            else SelectedIndex--;
+        }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            if (SelectedIndex == fileList.Length -1) SelectedIndex = 0;
+            else SelectedIndex++;
         }
     }
 }
