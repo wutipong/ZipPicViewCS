@@ -32,27 +32,28 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.thmbnailPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.openButton = new System.Windows.Forms.ToolStripSplitButton();
-            this.archiveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.folderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.zoomFitButton = new System.Windows.Forms.ToolStripButton();
             this.zoomCombo = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.autoButton = new System.Windows.Forms.ToolStripButton();
             this.advanceDurationCombo = new System.Windows.Forms.ToolStripComboBox();
-            this.advanceSoundButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.imageCloseButton = new System.Windows.Forms.ToolStripButton();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.folderBox = new System.Windows.Forms.ListBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+            this.thumbnailProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.thumbnailBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.openButton = new System.Windows.Forms.ToolStripSplitButton();
+            this.archiveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.folderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.zoomFitButton = new System.Windows.Forms.ToolStripButton();
+            this.autoButton = new System.Windows.Forms.ToolStripButton();
+            this.advanceSoundButton = new System.Windows.Forms.ToolStripButton();
+            this.imageCloseButton = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -101,50 +102,10 @@
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // openButton
-            // 
-            this.openButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.openButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.archiveMenuItem,
-            this.folderToolStripMenuItem});
-            this.openButton.Image = ((System.Drawing.Image)(resources.GetObject("openButton.Image")));
-            this.openButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(32, 22);
-            this.openButton.Text = "toolStripSplitButton1";
-            this.openButton.ToolTipText = "Open";
-            this.openButton.ButtonClick += new System.EventHandler(this.toolStripSplitButton1_ButtonClick);
-            // 
-            // archiveMenuItem
-            // 
-            this.archiveMenuItem.Name = "archiveMenuItem";
-            this.archiveMenuItem.Size = new System.Drawing.Size(114, 22);
-            this.archiveMenuItem.Text = "Archive";
-            this.archiveMenuItem.ToolTipText = "Open Archive";
-            this.archiveMenuItem.Click += new System.EventHandler(this.archiveMenuItem_Click);
-            // 
-            // folderToolStripMenuItem
-            // 
-            this.folderToolStripMenuItem.Name = "folderToolStripMenuItem";
-            this.folderToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
-            this.folderToolStripMenuItem.Text = "Folder";
-            this.folderToolStripMenuItem.ToolTipText = "Open Folder";
-            this.folderToolStripMenuItem.Click += new System.EventHandler(this.folderToolStripMenuItem_Click);
-            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // zoomFitButton
-            // 
-            this.zoomFitButton.CheckOnClick = true;
-            this.zoomFitButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.zoomFitButton.Image = ((System.Drawing.Image)(resources.GetObject("zoomFitButton.Image")));
-            this.zoomFitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.zoomFitButton.Name = "zoomFitButton";
-            this.zoomFitButton.Size = new System.Drawing.Size(23, 22);
-            this.zoomFitButton.Text = "Fit";
             // 
             // zoomCombo
             // 
@@ -180,16 +141,6 @@
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
-            // autoButton
-            // 
-            this.autoButton.CheckOnClick = true;
-            this.autoButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.autoButton.Image = ((System.Drawing.Image)(resources.GetObject("autoButton.Image")));
-            this.autoButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.autoButton.Name = "autoButton";
-            this.autoButton.Size = new System.Drawing.Size(23, 22);
-            this.autoButton.Text = "Auto Advance";
-            // 
             // advanceDurationCombo
             // 
             this.advanceDurationCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -207,31 +158,10 @@
             this.advanceDurationCombo.Size = new System.Drawing.Size(121, 25);
             this.advanceDurationCombo.ToolTipText = "Duration between each image.";
             // 
-            // advanceSoundButton
-            // 
-            this.advanceSoundButton.CheckOnClick = true;
-            this.advanceSoundButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.advanceSoundButton.Image = ((System.Drawing.Image)(resources.GetObject("advanceSoundButton.Image")));
-            this.advanceSoundButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.advanceSoundButton.Name = "advanceSoundButton";
-            this.advanceSoundButton.Size = new System.Drawing.Size(23, 22);
-            this.advanceSoundButton.Text = "toolStripButton5";
-            this.advanceSoundButton.ToolTipText = "Play alert sound betwen images";
-            // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
-            // 
-            // imageCloseButton
-            // 
-            this.imageCloseButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.imageCloseButton.Image = ((System.Drawing.Image)(resources.GetObject("imageCloseButton.Image")));
-            this.imageCloseButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.imageCloseButton.Name = "imageCloseButton";
-            this.imageCloseButton.Size = new System.Drawing.Size(23, 22);
-            this.imageCloseButton.Text = "toolStripButton4";
-            this.imageCloseButton.ToolTipText = "Close image";
             // 
             // tabControl1
             // 
@@ -297,17 +227,17 @@
             // 
             this.statusStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripProgressBar1});
+            this.thumbnailProgressBar});
             this.statusStrip1.Location = new System.Drawing.Point(0, 0);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(695, 22);
             this.statusStrip1.TabIndex = 6;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripProgressBar1
+            // thumbnailProgressBar
             // 
-            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
+            this.thumbnailProgressBar.Name = "thumbnailProgressBar";
+            this.thumbnailProgressBar.Size = new System.Drawing.Size(100, 16);
             // 
             // toolStripContainer1
             // 
@@ -331,6 +261,87 @@
             // toolStripContainer1.TopToolStripPanel
             // 
             this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
+            // 
+            // thumbnailBackgroundWorker
+            // 
+            this.thumbnailBackgroundWorker.WorkerReportsProgress = true;
+            this.thumbnailBackgroundWorker.WorkerSupportsCancellation = true;
+            this.thumbnailBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.thumbnailBackgroundWorker_DoWork);
+            this.thumbnailBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.thumbnailBackgroundWorker_ProgressChanged);
+            this.thumbnailBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.thumbnailBackgroundWorker_RunWorkerCompleted);
+            // 
+            // openButton
+            // 
+            this.openButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.openButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.archiveMenuItem,
+            this.folderToolStripMenuItem});
+            this.openButton.Image = ((System.Drawing.Image)(resources.GetObject("openButton.Image")));
+            this.openButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.openButton.Name = "openButton";
+            this.openButton.Size = new System.Drawing.Size(32, 22);
+            this.openButton.Text = "toolStripSplitButton1";
+            this.openButton.ToolTipText = "Open";
+            this.openButton.ButtonClick += new System.EventHandler(this.toolStripSplitButton1_ButtonClick);
+            // 
+            // archiveMenuItem
+            // 
+            this.archiveMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("archiveMenuItem.Image")));
+            this.archiveMenuItem.Name = "archiveMenuItem";
+            this.archiveMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.archiveMenuItem.Text = "Archive";
+            this.archiveMenuItem.ToolTipText = "Open Archive";
+            this.archiveMenuItem.Click += new System.EventHandler(this.archiveMenuItem_Click);
+            // 
+            // folderToolStripMenuItem
+            // 
+            this.folderToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("folderToolStripMenuItem.Image")));
+            this.folderToolStripMenuItem.Name = "folderToolStripMenuItem";
+            this.folderToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.folderToolStripMenuItem.Text = "Folder";
+            this.folderToolStripMenuItem.ToolTipText = "Open Folder";
+            this.folderToolStripMenuItem.Click += new System.EventHandler(this.folderToolStripMenuItem_Click);
+            // 
+            // zoomFitButton
+            // 
+            this.zoomFitButton.CheckOnClick = true;
+            this.zoomFitButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.zoomFitButton.Image = ((System.Drawing.Image)(resources.GetObject("zoomFitButton.Image")));
+            this.zoomFitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.zoomFitButton.Name = "zoomFitButton";
+            this.zoomFitButton.Size = new System.Drawing.Size(23, 22);
+            this.zoomFitButton.Text = "Fit";
+            // 
+            // autoButton
+            // 
+            this.autoButton.CheckOnClick = true;
+            this.autoButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.autoButton.Image = ((System.Drawing.Image)(resources.GetObject("autoButton.Image")));
+            this.autoButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.autoButton.Name = "autoButton";
+            this.autoButton.Size = new System.Drawing.Size(23, 22);
+            this.autoButton.Text = "Auto Advance";
+            // 
+            // advanceSoundButton
+            // 
+            this.advanceSoundButton.CheckOnClick = true;
+            this.advanceSoundButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.advanceSoundButton.Image = ((System.Drawing.Image)(resources.GetObject("advanceSoundButton.Image")));
+            this.advanceSoundButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.advanceSoundButton.Name = "advanceSoundButton";
+            this.advanceSoundButton.Size = new System.Drawing.Size(23, 22);
+            this.advanceSoundButton.Text = "toolStripButton5";
+            this.advanceSoundButton.ToolTipText = "Play alert sound betwen images";
+            // 
+            // imageCloseButton
+            // 
+            this.imageCloseButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.imageCloseButton.Image = ((System.Drawing.Image)(resources.GetObject("imageCloseButton.Image")));
+            this.imageCloseButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.imageCloseButton.Name = "imageCloseButton";
+            this.imageCloseButton.Size = new System.Drawing.Size(23, 22);
+            this.imageCloseButton.Text = "toolStripButton4";
+            this.imageCloseButton.ToolTipText = "Close image";
             // 
             // MainForm
             // 
@@ -377,7 +388,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton zoomFitButton;
         private System.Windows.Forms.ToolStripComboBox zoomCombo;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
+        private System.Windows.Forms.ToolStripProgressBar thumbnailProgressBar;
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton autoButton;
@@ -387,6 +398,7 @@
         private System.Windows.Forms.ToolStripButton advanceSoundButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ListBox folderBox;
+        private System.ComponentModel.BackgroundWorker thumbnailBackgroundWorker;
     }
 }
 

@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
-
-using SharpCompress.Archives;
-using System.Collections.Generic;
 
 namespace ZipPicViewCS
 {
@@ -26,6 +20,8 @@ namespace ZipPicViewCS
             set {
                 if (mediaProvider != null)
                     mediaProvider.Dispose();
+                if(thumbnailBackgroundWorker.IsBusy)
+                    thumbnailBackgroundWorker.CancelAsync();
 
                 mediaProvider = value;
 
@@ -37,6 +33,8 @@ namespace ZipPicViewCS
         }
 
         private AbstractMediaProvider mediaProvider;
+        private List<Image> imageList = new List<Image>();
+     
 
         private Image CreateThumbnail(Image image, int maxWidth, int maxHeight, bool disposeOriginal = true)
         {
@@ -105,6 +103,15 @@ namespace ZipPicViewCS
 
         private void folderBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (thumbnailBackgroundWorker.IsBusy)
+                thumbnailBackgroundWorker.CancelAsync();
+            else
+                RecreateThumbnail();
+
+        }
+
+        private void RecreateThumbnail()
+        {
             var fileList = this.MediaProvider.GetChildEntries(folderBox.SelectedItem.ToString());
 
             var buttonList = new List<Button>();
@@ -115,16 +122,17 @@ namespace ZipPicViewCS
                     var stream = MediaProvider.OpenEntry(file);
 
                     var button = new Button();
-                    
+
                     button.Text = file.Substring(file.LastIndexOf('\\') + 1);
                     button.BackColor = SystemColors.ControlDark;
-                    button.Image = CreateThumbnail(Image.FromStream(stream), 200, 200);
-                    button.Size = button.Image.Size;
+
+                    button.Size = new Size(200, 200);
                     button.TextAlign = ContentAlignment.BottomCenter;
+                    button.Name = file;
 
                     stream.Close();
 
-                    buttonList.Add(button);   
+                    buttonList.Add(button);
                 }
             }
             catch (NotSupportedException err)
@@ -136,7 +144,66 @@ namespace ZipPicViewCS
             {
                 thmbnailPanel.Controls.Clear();
                 thmbnailPanel.Controls.AddRange(buttonList.ToArray());
+                imageList.Clear();
+
+                thumbnailBackgroundWorker.RunWorkerAsync(folderBox.SelectedItem.ToString());
             }
+        }
+
+        private void thumbnailBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            var entry = e.Argument as string;
+            try
+            {
+                var fileList = this.MediaProvider.GetChildEntries(entry);
+
+                for (int i = 0; i<fileList.Length; i++)
+                {
+                    var file = fileList[i];
+                    if (worker.CancellationPending == true)
+                    {
+                        e.Cancel = true;
+                        break;
+                    }
+                    
+                    var stream = MediaProvider.OpenEntry(file);
+
+                    var image = CreateThumbnail(Image.FromStream(stream), 200, 200);
+                    
+                    stream.Close();
+                    imageList.Add(image);
+                    worker.ReportProgress((i * 100) / fileList.Length);   
+                }
+                
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+
+            }
+            
+        }
+
+        private void thumbnailBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage < 100)
+            {
+                int index = imageList.Count - 1;
+                var button = thmbnailPanel.Controls[index] as Button;
+                button.Image = imageList[index];
+
+            }
+            thumbnailProgressBar.Value = e.ProgressPercentage;
+        }
+
+        private void thumbnailBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (!e.Cancelled) thumbnailProgressBar.Value = 100;
+            else RecreateThumbnail();
         }
     }
 }
