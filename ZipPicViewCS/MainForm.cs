@@ -33,6 +33,10 @@ namespace ZipPicViewCS
                 folderBox.Items.AddRange(this.MediaProvider.FolderEntries);
                 
                 folderBox.SelectedIndex = 0;
+
+                tabControl1.SelectedIndex = 0;
+
+                viewerPictureBox.Image = null;
             }
         }
 
@@ -46,14 +50,17 @@ namespace ZipPicViewCS
             set
             {
                 selectedIndex = value;
-                var stream = MediaProvider.OpenEntry(fileList[selectedIndex]);
-                var image = Image.FromStream(stream);
+                lock (MediaProvider)
+                {
+                    var stream = MediaProvider.OpenEntry(fileList[selectedIndex]);
+                    var image = Image.FromStream(stream);
 
-                viewerPictureBox.Image = image;
+                    viewerPictureBox.Image = image;
+                }
             }
         }
 
-        private AbstractMediaProvider mediaProvider;
+        private AbstractMediaProvider mediaProvider = new FileSystemMediaProvider(".");
         private List<Image> imageList = new List<Image>();
      
 
@@ -92,7 +99,10 @@ namespace ZipPicViewCS
             var results = openFileDialog.ShowDialog();
             if (results != DialogResult.OK) return;
 
-            this.MediaProvider = new ArchiveMediaProvider(openFileDialog.FileName);
+            lock (MediaProvider)
+            {
+                this.MediaProvider = new ArchiveMediaProvider(openFileDialog.FileName);
+            }
             pathLabel.Text = openFileDialog.FileName;
         }
 
@@ -107,7 +117,10 @@ namespace ZipPicViewCS
             dialog.IsFolderPicker = true;
 
             if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
-            this.MediaProvider = new FileSystemMediaProvider(dialog.FileName);
+            lock (MediaProvider)
+            {
+                this.MediaProvider = new FileSystemMediaProvider(dialog.FileName);
+            }
             pathLabel.Text = dialog.FileName;
         }
 
@@ -122,42 +135,45 @@ namespace ZipPicViewCS
 
         private void RecreateThumbnail()
         {
-            fileList = this.MediaProvider.GetChildEntries(folderBox.SelectedItem.ToString());
-
-            var buttonList = new List<Button>();
-            try
+            lock (MediaProvider)
             {
-                foreach (var file in fileList)
+                fileList = this.MediaProvider.GetChildEntries(folderBox.SelectedItem.ToString());
+
+                var buttonList = new List<Button>();
+                try
                 {
-                    var stream = MediaProvider.OpenEntry(file);
+                    foreach (var file in fileList)
+                    {
+                        var stream = MediaProvider.OpenEntry(file);
 
-                    var button = new Button();
+                        var button = new Button();
 
-                    button.Text = file.Substring(file.LastIndexOf('\\') + 1);
-                    button.BackColor = SystemColors.ControlDark;
+                        button.Text = file.Substring(file.LastIndexOf('\\') + 1);
+                        button.BackColor = SystemColors.ControlDark;
 
-                    button.Size = new Size(200, 200);
-                    button.TextAlign = ContentAlignment.BottomCenter;
-                    button.Name = file;
-                    button.Click += ImageButton_Click;
+                        button.Size = new Size(200, 200);
+                        button.TextAlign = ContentAlignment.BottomCenter;
+                        button.Name = file;
+                        button.Click += ImageButton_Click;
 
-                    stream.Close();
+                        stream.Close();
 
-                    buttonList.Add(button);
+                        buttonList.Add(button);
+                    }
                 }
-            }
-            catch (NotSupportedException err)
-            {
-                MessageBox.Show(err.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                buttonList.Clear();
-            }
-            finally
-            {
-                thmbnailPanel.Controls.Clear();
-                thmbnailPanel.Controls.AddRange(buttonList.ToArray());
-                imageList.Clear();
+                catch (NotSupportedException err)
+                {
+                    MessageBox.Show(err.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    buttonList.Clear();
+                }
+                finally
+                {
+                    thmbnailPanel.Controls.Clear();
+                    thmbnailPanel.Controls.AddRange(buttonList.ToArray());
+                    imageList.Clear();
 
-                thumbnailBackgroundWorker.RunWorkerAsync(folderBox.SelectedItem.ToString());
+                    thumbnailBackgroundWorker.RunWorkerAsync(folderBox.SelectedItem.ToString());
+                }
             }
         }
 
@@ -183,13 +199,16 @@ namespace ZipPicViewCS
                         e.Cancel = true;
                         break;
                     }
-                    
-                    var stream = MediaProvider.OpenEntry(file);
 
-                    var image = CreateThumbnail(Image.FromStream(stream), 200, 200);
-                    
-                    stream.Close();
-                    imageList.Add(image);
+                    lock (MediaProvider)
+                    {
+                        var stream = MediaProvider.OpenEntry(file);
+
+                        var image = CreateThumbnail(Image.FromStream(stream), 200, 200);
+
+                        stream.Close();
+                        imageList.Add(image);
+                    }
                     worker.ReportProgress((i * 100) / fileList.Length);   
                 }
                 
