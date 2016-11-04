@@ -3,8 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Media;
+using System.Reflection;
+using System.Resources;
 using System.Threading;
 using System.Windows.Forms;
+using ZipPicViewCS.Properties;
 
 namespace ZipPicViewCS
 {
@@ -13,9 +17,16 @@ namespace ZipPicViewCS
         private string[] fileList = null;
         private int selectedIndex = 0;
 
+        private int[] durationArray = { 5, 10, 15, 30, 60, 300, 600, 900, 1800 };
+        private int durationLeft = 0;
+
+
+        private SoundPlayer player;
         public MainForm()
         {
             InitializeComponent();
+
+            player = new SoundPlayer(Resources.beep);
         }
 
         public AbstractMediaProvider MediaProvider
@@ -36,6 +47,7 @@ namespace ZipPicViewCS
 
                 tabControl1.SelectedIndex = 0;
 
+                timer.Stop();
                 viewerPictureBox.Image = null;
             }
         }
@@ -247,16 +259,53 @@ namespace ZipPicViewCS
             viewerPictureBox.SizeMode = zoomFitButton.Checked ? PictureBoxSizeMode.Zoom : PictureBoxSizeMode.AutoSize;
         }
 
-        private void toolStripButton2_Click(object sender, EventArgs e)
+        private void prevButton_Click(object sender, EventArgs e)
         {
             if (SelectedIndex == 0) SelectedIndex = fileList.Length - 1;
             else SelectedIndex--;
         }
 
-        private void toolStripButton1_Click(object sender, EventArgs e)
+        private void nextButton_Click(object sender, EventArgs e)
         {
             if (SelectedIndex == fileList.Length -1) SelectedIndex = 0;
             else SelectedIndex++;
+        }
+
+        private void toolStripButton3_Click(object sender, EventArgs e)
+        {
+            new AboutBox().ShowDialog();
+        }
+
+        private void autoButton_Click(object sender, EventArgs e)
+        {
+            if (autoButton.Checked)
+            {
+                if (advanceDurationCombo.SelectedIndex < 0)
+                    advanceDurationCombo.SelectedIndex = 0;
+
+                durationLeft = durationArray[advanceDurationCombo.SelectedIndex];
+                timer.Start();
+                advanceDurationCombo.Enabled = false;
+            }
+            else
+            {
+                timer.Stop();
+                advanceDurationCombo.Enabled = true;
+            }
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            durationLeft--;
+            if(advanceSoundButton.Checked && durationLeft < 5)
+            {
+                player.Play();
+            }
+            if(durationLeft == 0)
+            {
+                nextButton_Click(sender, e);
+                durationLeft = durationArray[advanceDurationCombo.SelectedIndex];
+            }
         }
     }
 }
