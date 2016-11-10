@@ -25,19 +25,20 @@ namespace ZipPicViewUWP
 
         public override async Task<string[]> GetChildEntries(string entry)
         {
-            var subFolder = await folder.GetFolderAsync(entry);
+            var subFolder = entry == @"\"? folder : await folder.GetFolderAsync(entry);
+
             var files = await folder.GetFilesAsync(CommonFileQuery.OrderByName);
 
             var output = new List<string>(files.Count);
-
             
             var startIndex = subFolder.Path.Length;
+            var path = subFolder.Path + @"\";
             foreach (var file in 
                 from f in files
                 where f.Name.EndsWith(".jpg") || f.Name.EndsWith(".jpeg") || f.Name.EndsWith(".png")
                 select f.Name) 
             {
-                output.Add(file.Substring(startIndex));
+                output.Add(path.Substring(startIndex+1) + file);
             }
             return output.ToArray();
         }

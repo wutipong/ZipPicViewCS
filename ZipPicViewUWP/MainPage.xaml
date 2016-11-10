@@ -8,12 +8,14 @@
     mc:Ignorable="d">
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
+            <SplitView.Content>
+                <GridView x:Name="thumbnailGrid"></GridView>
+            </SplitView.Content>
             <SplitView.Pane>
-                <ListView x:Name="subFolderList" >
+                <ListView x:Name="subFolderList" SelectionChanged="subFolderList_SelectionChanged" >
 
                 </ListView>
             </SplitView.Pane>
-            <Grid/>
         </SplitView>
     </Grid>
     <Page.BottomAppBar>

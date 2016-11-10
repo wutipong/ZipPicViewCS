@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -40,6 +41,7 @@ namespace ZipPicViewUWP
 
             subFolderList.SelectedIndex = 0;
         }
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -73,6 +75,25 @@ namespace ZipPicViewUWP
         private void subFolderButton_Click(object sender, RoutedEventArgs e)
         {
             splitView.IsPaneOpen = true;
+        }
+
+        private async void subFolderList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selected = (String)e.AddedItems.First();
+            var fileList = await provider.GetChildEntries(selected);
+
+            foreach (var file in fileList)
+            {
+                var thumbnail = new Thumbnail();
+                var streamTask = provider.OpenEntryAsync(file);
+                
+                thumbnail.Label.Text = file;
+                thumbnailGrid.Items.Add(thumbnail);
+                var stream = await streamTask;
+                var bi = new BitmapImage();
+                bi.SetSource(stream.AsRandomAccessStream());
+                thumbnail.Image.Source = bi;
+            }
         }
     }
 }

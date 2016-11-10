@@ -13,6 +13,6 @@ namespace ZipPicViewUWP
         public virtual async Task<string[]> GetChildEntries(string entry) { return await Task.Run(() => { return new string[0]; }); }
         public virtual async Task<Stream> OpenEntryAsync(string entry) { return await Task.Run(() => { return (Stream)null; }); }
 
-        public void Dispose() { }
+        public virtual void Dispose() { }
     }
 }

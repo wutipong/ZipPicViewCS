@@ -39,7 +39,7 @@ namespace ZipPicViewUWP
 
         public override Task<string[]> GetChildEntries(string entry)
         {
-            return new Task<string[]>(() =>
+            return Task.Run<string[]>(() =>
             {
                 var entryLength = entry.Length;
 
@@ -55,7 +55,7 @@ namespace ZipPicViewUWP
 
         public override Task<Stream> OpenEntryAsync(string entry)
         {
-            return new Task<Stream>(() => { return archive.Entries.First(e => e.Key == entry).OpenEntryStream(); });
+            return Task.Run<Stream>(() => { return archive.Entries.First(e => e.Key == entry).OpenEntryStream(); });
         }
 
         public override void Dispose()
