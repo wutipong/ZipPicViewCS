@@ -6,18 +6,24 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
-            <SplitView.Content>
-                <GridView x:Name="thumbnailGrid"></GridView>
-            </SplitView.Content>
-            <SplitView.Pane>
-                <ListView x:Name="subFolderList" SelectionChanged="subFolderList_SelectionChanged" >
+    <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
+        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
+            <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
+                <SplitView.Content>
+                    <GridView x:Name="thumbnailGrid"></GridView>
+                </SplitView.Content>
+                <SplitView.Pane>
+                    <ListView x:Name="subFolderList" SelectionChanged="subFolderList_SelectionChanged" >
 
-                </ListView>
-            </SplitView.Pane>
-        </SplitView>
-    </Grid>
+                    </ListView>
+                </SplitView.Pane>
+            </SplitView>
+        </Grid>
+        <Border Background="#7F000000" x:Name="imageBorder" Visibility="Collapsed">
+            <Image x:Name="image" Height="1019" Width="1920"/>
+        </Border>
+        <local:ViewerControl x:Name="imageControl" Height="1019" Width="1920" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" />
+    </Canvas>
     <Page.BottomAppBar>
         <CommandBar>
             <CommandBar.Content>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage.Pickers;
@@ -25,7 +26,7 @@ namespace ZipPicViewUWP
     public sealed partial class MainPage : Page
     {
         private AbstractMediaProvider provider;
-        
+        private CancellationTokenSource cancellationTokenSource;
 
         public async void SetMediaProvider(AbstractMediaProvider provider)
         {
@@ -82,18 +83,63 @@ namespace ZipPicViewUWP
             var selected = (String)e.AddedItems.First();
             var fileList = await provider.GetChildEntries(selected);
 
-            foreach (var file in fileList)
+            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+
+            cancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
+            try
             {
-                var thumbnail = new Thumbnail();
-                var streamTask = provider.OpenEntryAsync(file);
-                
-                thumbnail.Label.Text = file;
-                thumbnailGrid.Items.Add(thumbnail);
-                var stream = await streamTask;
-                var bi = new BitmapImage();
-                bi.SetSource(stream.AsRandomAccessStream());
-                thumbnail.Image.Source = bi;
+                foreach (var file in fileList)
+                {
+                    token.ThrowIfCancellationRequested();
+                    var thumbnail = new Thumbnail();
+                    var streamTask = provider.OpenEntryAsync(file);
+
+                    thumbnail.Label.Text = file;
+                    thumbnailGrid.Items.Add(thumbnail);
+                    var stream = await streamTask;
+                    var bi = new BitmapImage();
+                    bi.SetSource(stream.AsRandomAccessStream());
+                    thumbnail.Image.Source = bi;
+                    thumbnail.Click += Thumbnail_Click;
+                }
             }
+            catch (OperationCanceledException) { }
+            finally { cancellationTokenSource = null; }
+        }
+
+        private async void Thumbnail_Click(object sender, RoutedEventArgs e)
+        {
+            imageBorder.Visibility = Visibility.Visible;
+            imageControl.Visibility = Visibility.Visible;
+
+            var file = ((Thumbnail)((Button)e.OriginalSource).Parent).Label.Text;
+            imageControl.Filename = file;
+
+            var streamTask = provider.OpenEntryAsync(file);
+            var stream = await streamTask;
+            var bi = new BitmapImage();
+            bi.SetSource(stream.AsRandomAccessStream());
+            image.Source = bi;
+        }
+
+        private void canvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            foreach (var child in canvas.Children)
+            {
+                if (child is FrameworkElement)
+                {
+                    var fe = (FrameworkElement)child;
+                    fe.Width = e.NewSize.Width;
+                    fe.Height = e.NewSize.Height;
+                }
+            }
+        }
+
+        private void imageControl_CloseButtonClick(object sender, RoutedEventArgs e)
+        {
+            imageBorder.Visibility = Visibility.Collapsed;
+            imageControl.Visibility = Visibility.Collapsed;
         }
     }
 }

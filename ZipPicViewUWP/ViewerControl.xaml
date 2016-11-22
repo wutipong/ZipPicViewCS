@@ -1,0 +1,21 @@
+﻿<UserControl
+    x:Class="ZipPicViewUWP.ViewerControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ZipPicViewUWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid>
+        <Button Content="&gt;" x:Name="nextButton" HorizontalAlignment="Right" Margin="0" VerticalAlignment="Center"/>
+        <Button Content="&lt;" x:Name="prevButton" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center"/>
+
+        <RelativePanel HorizontalAlignment="Right" VerticalAlignment="Top" >
+            <Button x:Name="closeButton" Content="X"/>
+        </RelativePanel>
+        <TextBlock x:Name="filenameTextBlock" VerticalAlignment="Bottom" Text="&lt;SomeFileName&gt;" Margin="0" />
+    </Grid>
+</UserControl>

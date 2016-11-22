@@ -40,5 +40,11 @@ namespace ZipPicViewUWP
                 return image;
             }
         }
+
+        public event RoutedEventHandler Click
+        {
+            add { button.Click += value; }
+            remove { button.Click -= value; }
+        }
     }
 }
