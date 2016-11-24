@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -7,6 +8,7 @@ using System.Threading;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -69,7 +71,7 @@ namespace ZipPicViewUWP
             var selected = await picker.PickSingleFolderAsync();
             if (selected == null) return;
             filenameTextBlock.Text = selected.Name;
-            
+
             SetMediaProvider(new FileSystemMediaProvider(selected));
         }
 
@@ -80,6 +82,7 @@ namespace ZipPicViewUWP
 
         private async void subFolderList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (e.AddedItems.Count == 0) return;
             var selected = (String)e.AddedItems.First();
             var fileList = await provider.GetChildEntries(selected);
 
@@ -99,7 +102,33 @@ namespace ZipPicViewUWP
                     thumbnailGrid.Items.Add(thumbnail);
                     var stream = await streamTask;
                     var bi = new BitmapImage();
-                    bi.SetSource(stream.AsRandomAccessStream());
+                    if (stream.CanSeek)
+                        bi.SetSource(stream.AsRandomAccessStream());
+                    else
+                    {
+                        var memoryStream = new InMemoryRandomAccessStream();
+                        var buffersize = 1024 * 4;
+                        byte[] buffer = new byte[buffersize];
+
+                        var writer = new DataWriter(memoryStream);
+
+                        while (true)
+                        {
+                            var read = stream.Read(buffer, 0, buffersize);
+                          
+                            if (read == 0) break;
+                            byte[] readBuffer = new byte[read];
+                            Array.Copy(buffer, readBuffer, read);
+                            writer.WriteBytes(readBuffer);
+                            await writer.StoreAsync();
+
+                        }
+                        await writer.FlushAsync();
+                        writer.DetachStream();
+                        memoryStream.Seek(0);
+
+                        bi.SetSource(memoryStream);
+                    }
                     thumbnail.Image.Source = bi;
                     thumbnail.Click += Thumbnail_Click;
                 }
@@ -119,7 +148,33 @@ namespace ZipPicViewUWP
             var streamTask = provider.OpenEntryAsync(file);
             var stream = await streamTask;
             var bi = new BitmapImage();
-            bi.SetSource(stream.AsRandomAccessStream());
+            if (stream.CanSeek)
+                bi.SetSource(stream.AsRandomAccessStream());
+            else
+            {
+                var memoryStream = new InMemoryRandomAccessStream();
+                var buffersize = 1024 * 4;
+                byte[] buffer = new byte[buffersize];
+
+                var writer = new DataWriter(memoryStream);
+
+                while (true)
+                {
+                    var read = stream.Read(buffer, 0, buffersize);
+                  
+                    if (read == 0) break;
+                    byte[] readBuffer = new byte[read];
+                    Array.Copy(buffer, readBuffer, read);
+                    writer.WriteBytes(readBuffer);
+                    await writer.StoreAsync();
+
+                }
+                await writer.FlushAsync();
+                writer.DetachStream();
+                memoryStream.Seek(0);
+
+                bi.SetSource(memoryStream);
+            }
             image.Source = bi;
         }
 
