@@ -20,7 +20,7 @@
             </SplitView>
         </Grid>
         <Border Background="#7F000000" x:Name="imageBorder" Visibility="Collapsed">
-            <Image x:Name="image" Height="1019" Width="1920"/>
+            <Image x:Name="image"/>
         </Border>
         <local:ViewerControl x:Name="imageControl" Height="1019" Width="1920" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" />
     </Canvas>

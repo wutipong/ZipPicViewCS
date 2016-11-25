@@ -10,11 +10,11 @@
     d:DesignWidth="400">
 
     <Grid>
-        <Button Content="&gt;" x:Name="nextButton" HorizontalAlignment="Right" Margin="0" VerticalAlignment="Center"/>
-        <Button Content="&lt;" x:Name="prevButton" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center"/>
+        <Button Content="&gt;" x:Name="nextButton" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="100"/>
+        <Button Content="&lt;" x:Name="prevButton" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Center" Height="100"/>
 
-        <RelativePanel HorizontalAlignment="Right" VerticalAlignment="Top" >
-            <Button x:Name="closeButton" Content="X"/>
+        <RelativePanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" >
+            <Button x:Name="closeButton" Content="X" Width="50" Height="50"/>
         </RelativePanel>
         <TextBlock x:Name="filenameTextBlock" VerticalAlignment="Bottom" Text="&lt;SomeFileName&gt;" Margin="0" />
     </Grid>
