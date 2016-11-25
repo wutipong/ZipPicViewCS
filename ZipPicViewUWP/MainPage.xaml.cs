@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
@@ -102,13 +103,37 @@ namespace ZipPicViewUWP
                     thumbnail.Label.Text = file;
                     thumbnailGrid.Items.Add(thumbnail);
                     var stream = await streamTask;
-                    var bi = new BitmapImage();
-                    
-                    bi.SetSource(stream);
-                    
-                    thumbnail.Image.Source = bi;
+
+                    var decoder = await BitmapDecoder.CreateAsync(stream);
+                    var width = decoder.PixelWidth;
+                    var height = decoder.PixelHeight;
+                    if(width > height)
+                    {
+                        height = (200 * height) / width;
+                        width = 200;
+                    }
+                    else
+                    {
+                        width = (200 * width) / height;
+                        height = 200;
+                    }
+                    var transform = new BitmapTransform();
+                    transform.InterpolationMode = BitmapInterpolationMode.Fant;
+                    transform.ScaledWidth = width;
+                    transform.ScaledHeight = height;
+
+                    var bitmap = await decoder.GetSoftwareBitmapAsync(
+                              BitmapPixelFormat.Bgra8,
+                              BitmapAlphaMode.Premultiplied,
+                              transform,
+                              ExifOrientationMode.RespectExifOrientation,
+                              ColorManagementMode.ColorManageToSRgb);
+                    var source = new SoftwareBitmapSource();
+                    await source.SetBitmapAsync(bitmap);
+
+                    thumbnail.Image.Source = source;
                     thumbnail.Click += Thumbnail_Click;
-                    await Task.Delay(13);
+                    await Task.Delay(1);
                 }
             }
             catch (OperationCanceledException) { }
@@ -129,7 +154,7 @@ namespace ZipPicViewUWP
             var bi = new BitmapImage();
             bi.SetSource(stream);
             image.Source = bi;
-          
+
         }
 
         private void canvas_SizeChanged(object sender, SizeChangedEventArgs e)
