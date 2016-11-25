@@ -92,6 +92,7 @@ namespace ZipPicViewUWP
 
             cancellationTokenSource = new CancellationTokenSource();
             var token = cancellationTokenSource.Token;
+            thumbnailGrid.Items.Clear();
             try
             {
                 foreach (var file in fileList)
