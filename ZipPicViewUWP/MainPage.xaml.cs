@@ -96,39 +96,15 @@ namespace ZipPicViewUWP
                 {
                     token.ThrowIfCancellationRequested();
                     var thumbnail = new Thumbnail();
-                    var streamTask = provider.OpenEntryAsync(file);
+                    var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
 
                     thumbnail.Label.Text = file;
                     thumbnailGrid.Items.Add(thumbnail);
                     var stream = await streamTask;
                     var bi = new BitmapImage();
-                    if (stream.CanSeek)
-                        bi.SetSource(stream.AsRandomAccessStream());
-                    else
-                    {
-                        var memoryStream = new InMemoryRandomAccessStream();
-                        var buffersize = 1024 * 4;
-                        byte[] buffer = new byte[buffersize];
-
-                        var writer = new DataWriter(memoryStream);
-
-                        while (true)
-                        {
-                            var read = stream.Read(buffer, 0, buffersize);
-                          
-                            if (read == 0) break;
-                            byte[] readBuffer = new byte[read];
-                            Array.Copy(buffer, readBuffer, read);
-                            writer.WriteBytes(readBuffer);
-                            await writer.StoreAsync();
-
-                        }
-                        await writer.FlushAsync();
-                        writer.DetachStream();
-                        memoryStream.Seek(0);
-
-                        bi.SetSource(memoryStream);
-                    }
+                    
+                    bi.SetSource(stream);
+                    
                     thumbnail.Image.Source = bi;
                     thumbnail.Click += Thumbnail_Click;
                 }
@@ -145,37 +121,13 @@ namespace ZipPicViewUWP
             var file = ((Thumbnail)((Button)e.OriginalSource).Parent).Label.Text;
             imageControl.Filename = file;
 
-            var streamTask = provider.OpenEntryAsync(file);
+            var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
             var stream = await streamTask;
+
             var bi = new BitmapImage();
-            if (stream.CanSeek)
-                bi.SetSource(stream.AsRandomAccessStream());
-            else
-            {
-                var memoryStream = new InMemoryRandomAccessStream();
-                var buffersize = 1024 * 4;
-                byte[] buffer = new byte[buffersize];
-
-                var writer = new DataWriter(memoryStream);
-
-                while (true)
-                {
-                    var read = stream.Read(buffer, 0, buffersize);
-                  
-                    if (read == 0) break;
-                    byte[] readBuffer = new byte[read];
-                    Array.Copy(buffer, readBuffer, read);
-                    writer.WriteBytes(readBuffer);
-                    await writer.StoreAsync();
-
-                }
-                await writer.FlushAsync();
-                writer.DetachStream();
-                memoryStream.Seek(0);
-
-                bi.SetSource(memoryStream);
-            }
+            bi.SetSource(stream);
             image.Source = bi;
+          
         }
 
         private void canvas_SizeChanged(object sender, SizeChangedEventArgs e)

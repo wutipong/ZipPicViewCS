@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
 namespace ZipPicViewUWP
 {
@@ -14,5 +15,39 @@ namespace ZipPicViewUWP
         public virtual async Task<Stream> OpenEntryAsync(string entry) { return await Task.Run(() => { return (Stream)null; }); }
 
         public virtual void Dispose() { }
+
+        public async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
+        {
+            var stream = await OpenEntryAsync(entry);
+
+            if (stream.CanSeek)
+                return stream.AsRandomAccessStream();
+
+            else
+            {
+                var memoryStream = new InMemoryRandomAccessStream();
+                var buffersize = 1024 * 4;
+                byte[] buffer = new byte[buffersize];
+
+                var writer = new DataWriter(memoryStream);
+
+                while (true)
+                {
+                    var read = stream.Read(buffer, 0, buffersize);
+
+                    if (read == 0) break;
+                    byte[] readBuffer = new byte[read];
+                    Array.Copy(buffer, readBuffer, read);
+                    writer.WriteBytes(readBuffer);
+                    await writer.StoreAsync();
+
+                }
+                await writer.FlushAsync();
+                writer.DetachStream();
+                memoryStream.Seek(0);
+
+                return memoryStream;
+            }
+        }
     }
 }
