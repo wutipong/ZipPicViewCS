@@ -26,7 +26,7 @@ namespace ZipPicViewUWP
             else
             {
                 var memoryStream = new InMemoryRandomAccessStream();
-                var buffersize = 1024 * 4;
+                var buffersize = 1024 * 64;
                 byte[] buffer = new byte[buffersize];
 
                 var writer = new DataWriter(memoryStream);
@@ -40,12 +40,13 @@ namespace ZipPicViewUWP
                     Array.Copy(buffer, readBuffer, read);
                     writer.WriteBytes(readBuffer);
                     await writer.StoreAsync();
-
+                    await Task.Delay(13);
                 }
                 await writer.FlushAsync();
                 writer.DetachStream();
                 memoryStream.Seek(0);
 
+                stream.Dispose();
                 return memoryStream;
             }
         }
