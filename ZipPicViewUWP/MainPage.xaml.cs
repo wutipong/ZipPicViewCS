@@ -98,42 +98,21 @@ namespace ZipPicViewUWP
                 foreach (var file in fileList)
                 {
                     token.ThrowIfCancellationRequested();
-                    var thumbnail = new Thumbnail();
-                    var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
 
-                    thumbnail.Label.Text = file;
-                    thumbnailGrid.Items.Add(thumbnail);
-                    var stream = await streamTask;
+                    var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
 
-                    var decoder = await BitmapDecoder.CreateAsync(stream);
-                    var width = decoder.PixelWidth;
-                    var height = decoder.PixelHeight;
-                    if(width > height)
-                    {
-                        height = (200 * height) / width;
-                        width = 200;
-                    }
-                    else
-                    {
-                        width = (200 * width) / height;
-                        height = 200;
-                    }
-                    var transform = new BitmapTransform();
-                    transform.InterpolationMode = BitmapInterpolationMode.Fant;
-                    transform.ScaledWidth = width;
-                    transform.ScaledHeight = height;
-
-                    var bitmap = await decoder.GetSoftwareBitmapAsync(
-                              BitmapPixelFormat.Bgra8,
-                              BitmapAlphaMode.Premultiplied,
-                              transform,
-                              ExifOrientationMode.RespectExifOrientation,
-                              ColorManagementMode.ColorManageToSRgb);
+                    SoftwareBitmap bitmap = await CreateResizedBitmap(stream, 200, 200);
                     var source = new SoftwareBitmapSource();
-                    await source.SetBitmapAsync(bitmap);
+                    var setSourceTask = source.SetBitmapAsync(bitmap);
 
+                    var thumbnail = new Thumbnail();
                     thumbnail.Image.Source = source;
                     thumbnail.Click += Thumbnail_Click;
+                    thumbnail.Label.Text = file;
+
+                    thumbnailGrid.Items.Add(thumbnail);
+
+                    await setSourceTask;
                     await Task.Delay(1);
                 }
             }
@@ -141,9 +120,62 @@ namespace ZipPicViewUWP
             finally { cancellationTokenSource = null; }
         }
 
+        private enum ImageOrientation { Portrait, Landscape};
+
+        private static async Task<SoftwareBitmap> CreateResizedBitmap(IRandomAccessStream stream, uint expectedWidth, uint expectedHeight)
+        {
+            var expectedOrientation = expectedWidth > expectedHeight? ImageOrientation.Landscape: ImageOrientation.Portrait;
+            
+            var decoder = await BitmapDecoder.CreateAsync(stream);
+            
+            var width = decoder.PixelWidth;
+            var height = decoder.PixelHeight;
+            var imageOrientation = width > height? ImageOrientation.Landscape : ImageOrientation.Portrait;
+
+            if(expectedOrientation != imageOrientation)
+            {
+                if(imageOrientation == ImageOrientation.Landscape)
+                {
+                    height = (expectedWidth * height) / width;
+                    width = expectedWidth;
+                }
+                else
+                {
+                    width = (expectedHeight * width) / height;
+                    height = expectedHeight;
+                }
+            }
+
+            else
+            {
+                if (imageOrientation == ImageOrientation.Landscape)
+                {
+                    width = (expectedHeight * width) / height;
+                    height = expectedHeight;
+                }
+                else
+                {
+                    height = (expectedWidth * height) / width;
+                    width = expectedWidth;
+                }
+            }
+           
+            var transform = new BitmapTransform();
+            transform.InterpolationMode = BitmapInterpolationMode.Fant;
+            transform.ScaledWidth = width;
+            transform.ScaledHeight = height;
+
+            return await decoder.GetSoftwareBitmapAsync(
+                      BitmapPixelFormat.Bgra8,
+                      BitmapAlphaMode.Premultiplied,
+                      transform,
+                      ExifOrientationMode.RespectExifOrientation,
+                      ColorManagementMode.ColorManageToSRgb);
+        }
+
         private async void Thumbnail_Click(object sender, RoutedEventArgs e)
         {
-            imageBorder.Visibility = Visibility.Visible;
+            loadingBorder.Visibility = Visibility.Visible;
             imageControl.Visibility = Visibility.Visible;
 
             var file = ((Thumbnail)((Button)e.OriginalSource).Parent).Label.Text;
@@ -152,10 +184,15 @@ namespace ZipPicViewUWP
             var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
             var stream = await streamTask;
 
-            var bi = new BitmapImage();
-            bi.SetSource(stream);
-            image.Source = bi;
+            SoftwareBitmap bitmap = await CreateResizedBitmap(stream, (uint)canvas.RenderSize.Width, (uint)canvas.RenderSize.Height);
 
+            var source = new SoftwareBitmapSource();
+            var setSourceTask = source.SetBitmapAsync(bitmap);
+            
+            image.Source = source;
+            await setSourceTask;
+            loadingBorder.Visibility = Visibility.Collapsed;
+            imageBorder.Visibility = Visibility.Visible;
         }
 
         private void canvas_SizeChanged(object sender, SizeChangedEventArgs e)
