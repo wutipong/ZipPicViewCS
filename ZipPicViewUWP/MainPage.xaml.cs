@@ -21,6 +21,8 @@ namespace ZipPicViewUWP
     {
         private AbstractMediaProvider provider;
         private CancellationTokenSource cancellationTokenSource;
+        private string[] fileList;
+        private int currentFileIndex = 0;
 
         public async void SetMediaProvider(AbstractMediaProvider provider)
         {
@@ -76,7 +78,7 @@ namespace ZipPicViewUWP
         {
             if (e.AddedItems.Count == 0) return;
             var selected = (String)e.AddedItems.First();
-            var fileList = await provider.GetChildEntries(selected);
+            fileList = await provider.GetChildEntries(selected);
 
             if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
 
@@ -165,12 +167,18 @@ namespace ZipPicViewUWP
 
         private async void Thumbnail_Click(object sender, RoutedEventArgs e)
         {
-            loadingBorder.Visibility = Visibility.Visible;
             imageControl.Visibility = Visibility.Visible;
 
             var file = ((Thumbnail)sender).Label.Text;
-            imageControl.Filename = file;
+            currentFileIndex = Array.FindIndex(fileList, (string value) => value == file);
 
+            await SetCurrentFile(file);
+        }
+
+        private async Task SetCurrentFile(string file)
+        {
+            loadingBorder.Visibility = Visibility.Visible;
+            imageBorder.Visibility = Visibility.Collapsed;
             var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
             var stream = await streamTask;
 
@@ -178,8 +186,10 @@ namespace ZipPicViewUWP
 
             var source = new SoftwareBitmapSource();
             var setSourceTask = source.SetBitmapAsync(bitmap);
-            
+
             image.Source = source;
+            imageControl.Filename = file;
+
             await setSourceTask;
             loadingBorder.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Visible;
@@ -202,6 +212,28 @@ namespace ZipPicViewUWP
         {
             imageBorder.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
+        }
+
+        private async void imageControl_NextButtonClick(object sender, RoutedEventArgs e)
+        {
+            await AdvanceImage(1);
+        }
+
+        private async void imageControl_PrevButtonClick(object sender, RoutedEventArgs e)
+        {
+            await AdvanceImage(-1);
+        }
+
+        private async Task AdvanceImage(int step)
+        {
+            currentFileIndex += step;
+            while(currentFileIndex < 0 || currentFileIndex >= fileList.Length)
+            {
+                if (currentFileIndex < 0) currentFileIndex += fileList.Length;
+                else if (currentFileIndex >= fileList.Length) currentFileIndex -= fileList.Length;
+            }
+
+            await SetCurrentFile(fileList[currentFileIndex]);
         }
     }
 }
