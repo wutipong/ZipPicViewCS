@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Search;
+using Windows.Storage.Streams;
 
 namespace ZipPicViewUWP
 {
@@ -25,20 +26,20 @@ namespace ZipPicViewUWP
 
         public override async Task<string[]> GetChildEntries(string entry)
         {
-            var subFolder = entry == @"\"? folder : await folder.GetFolderAsync(entry);
+            var subFolder = entry == @"\" ? folder : await folder.GetFolderAsync(entry);
 
             var files = await folder.GetFilesAsync(CommonFileQuery.OrderByName);
 
             var output = new List<string>(files.Count);
-            
+
             var startIndex = subFolder.Path.Length;
             var path = subFolder.Path + @"\";
-            foreach (var file in 
+            foreach (var file in
                 from f in files
                 where f.Name.EndsWith(".jpg") || f.Name.EndsWith(".jpeg") || f.Name.EndsWith(".png")
-                select f.Name) 
+                select f.Name)
             {
-                output.Add(path.Substring(startIndex+1) + file);
+                output.Add(path.Substring(startIndex + 1) + file);
             }
             return output.ToArray();
         }
@@ -56,6 +57,11 @@ namespace ZipPicViewUWP
                 output.Add(folder.Path.Substring(startIndex));
             }
             return output.ToArray();
+        }
+
+        public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
+        {
+            return (await OpenEntryAsync(entry)).AsRandomAccessStream();
         }
     }
 }
