@@ -22,6 +22,12 @@ namespace ZipPicViewUWP
         public Thumbnail()
         {
             this.InitializeComponent();
+            button.Click += Button_Click;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Click(this, e);
         }
 
         public TextBlock Label
@@ -41,10 +47,6 @@ namespace ZipPicViewUWP
             }
         }
 
-        public event RoutedEventHandler Click
-        {
-            add { button.Click += value; }
-            remove { button.Click -= value; }
-        }
+        public event RoutedEventHandler Click;
     }
 }

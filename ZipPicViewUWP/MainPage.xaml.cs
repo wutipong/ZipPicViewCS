@@ -168,7 +168,7 @@ namespace ZipPicViewUWP
             loadingBorder.Visibility = Visibility.Visible;
             imageControl.Visibility = Visibility.Visible;
 
-            var file = ((Thumbnail)((Button)e.OriginalSource).Parent).Label.Text;
+            var file = ((Thumbnail)sender).Label.Text;
             imageControl.Filename = file;
 
             var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
