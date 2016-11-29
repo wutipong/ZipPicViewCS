@@ -9,11 +9,11 @@ namespace ZipPicViewUWP
     {
         public virtual async Task<string[]> GetFolderEntries() { return await Task.Run(() => { return new string[0]; }); }
         public virtual async Task<string[]> GetChildEntries(string entry) { return await Task.Run(() => { return new string[0]; }); }
-        public virtual async Task<Stream> OpenEntryAsync(string entry) { return await Task.Run(() => { return (Stream)null; }); }
+        public virtual async Task<Stream> OpenEntryAsync(string folder, string entry) { return await Task.Run(() => { return (Stream)null; }); }
 
         public virtual void Dispose() { }
 
-        public virtual async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry) 
+        public virtual async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string folder, string entry) 
         {
             return await Task.Run(() => { return (IRandomAccessStream)null; });
         }

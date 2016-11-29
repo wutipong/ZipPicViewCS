@@ -20,6 +20,7 @@ namespace ZipPicViewUWP
             this.stream = stream;
             archive = ArchiveFactory.Open(stream);
         }
+
         public override async Task<string[]> GetFolderEntries()
         {
             return await Task.Run<string[]>(() =>
@@ -54,18 +55,18 @@ namespace ZipPicViewUWP
                                        where (!e.IsDirectory) && (entry == @"\" || e.Key.StartsWith(entry)) && !e.Key.Substring(entryLength + 1).Contains(@"\") &&
                                        (e.Key.EndsWith(".jpg") || e.Key.EndsWith(".jpeg") || e.Key.EndsWith(".png"))
                                        orderby e.Key
-                                       select e.Key;
+                                       select e.Key.Substring(e.Key.LastIndexOf(@"\") + 1);
                     return imageEntries.ToArray<string>();
                 }
             });
         }
 
-        public override Task<Stream> OpenEntryAsync(string entry)
+        public override Task<Stream> OpenEntryAsync(string subfolder, string entry)
         {
             return Task.Run<Stream>(() => {
                 lock (archive)
                 {
-                    return archive.Entries.First(e => e.Key == entry).OpenEntryStream();
+                    return archive.Entries.First(e => e.Key == (subfolder + @"\" + entry)).OpenEntryStream();
                 }
             });
         }
@@ -77,9 +78,9 @@ namespace ZipPicViewUWP
             stream.Dispose();
         }
 
-        public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
+        public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string subfolder, string entry)
         {
-            using (var stream = await OpenEntryAsync(entry))
+            using (var stream = await OpenEntryAsync(subfolder, entry))
             {
                 var memoryStream = new InMemoryRandomAccessStream();
                 var buffersize = 1024 * 64;
