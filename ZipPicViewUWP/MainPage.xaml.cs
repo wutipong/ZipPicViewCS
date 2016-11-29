@@ -38,6 +38,9 @@ namespace ZipPicViewUWP
             }
 
             subFolderList.SelectedIndex = 0;
+            imageControl.Visibility = Visibility.Collapsed;
+            imageBorder.Visibility = Visibility.Collapsed;
+            loadingBorder.Visibility = Visibility.Collapsed;
         }
 
         public MainPage()
@@ -79,6 +82,8 @@ namespace ZipPicViewUWP
         {
             if (e.AddedItems.Count == 0) return;
             var selected = (String)e.AddedItems.First();
+            var provider = this.provider;
+
             fileList = await provider.GetChildEntries(selected);
 
             if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
@@ -90,8 +95,6 @@ namespace ZipPicViewUWP
             {
                 foreach (var file in fileList)
                 {
-                    token.ThrowIfCancellationRequested();
-
                     var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
 
                     SoftwareBitmap bitmap = await CreateResizedBitmap(stream, 200, 200);
@@ -103,6 +106,7 @@ namespace ZipPicViewUWP
                     thumbnail.Click += Thumbnail_Click;
                     thumbnail.Label.Text = file;
 
+                    token.ThrowIfCancellationRequested();
                     thumbnailGrid.Items.Add(thumbnail);
 
                     await setSourceTask;
