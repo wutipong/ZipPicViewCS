@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -179,6 +180,7 @@ namespace ZipPicViewUWP
         {
             loadingBorder.Visibility = Visibility.Visible;
             imageBorder.Visibility = Visibility.Collapsed;
+
             var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
             var stream = await streamTask;
 
@@ -235,5 +237,21 @@ namespace ZipPicViewUWP
 
             await SetCurrentFile(fileList[currentFileIndex]);
         }
+
+        private async void image_ManipulationCompleted(object sender, Windows.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs e)
+        {
+            var deltaX = e.Cumulative.Translation.X;
+
+            if (deltaX > 0)
+            {
+                await AdvanceImage(1);
+            }
+            else if (deltaX < 0)
+            {
+                await AdvanceImage(-1);
+            }
+        }
+
+        
     }
 }
