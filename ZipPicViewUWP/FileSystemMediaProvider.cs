@@ -28,34 +28,39 @@ namespace ZipPicViewUWP
         {
             var subFolder = entry == @"\" ? folder : await folder.GetFolderAsync(entry);
 
-            var files = await folder.GetFilesAsync(CommonFileQuery.OrderByName);
+            var files = await subFolder.GetFilesAsync();
 
             var output = new List<string>(files.Count);
 
             var startIndex = subFolder.Path.Length;
-            var path = subFolder.Path + @"\";
-            foreach (var file in
+            
+            foreach (var path in
                 from f in files
                 where f.Name.EndsWith(".jpg") || f.Name.EndsWith(".jpeg") || f.Name.EndsWith(".png")
-                select f.Name)
+                select f.Path)
             {
-                output.Add(path.Substring(startIndex + 1) + file);
+                output.Add(path.Substring(folder.Path.Length + 1));
             }
             return output.ToArray();
         }
 
         public override async Task<string[]> GetFolderEntries()
         {
-            var subFolders = await folder.GetFoldersAsync();
+            var options = new QueryOptions(CommonFolderQuery.DefaultQuery);
+            options.FolderDepth = FolderDepth.Deep;
+
+            var subFolders = await folder.CreateFolderQueryWithOptions(options).GetFoldersAsync();
 
             var output = new List<string>(subFolders.Count);
 
             output.Add(@"\");
-            var startIndex = folder.Path.Length;
+            var startIndex = folder.Path.Length + 1;
             foreach (var folder in subFolders)
             {
                 output.Add(folder.Path.Substring(startIndex));
             }
+
+            output.Sort();
             return output.ToArray();
         }
 

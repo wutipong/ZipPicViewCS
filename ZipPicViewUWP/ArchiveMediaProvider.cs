@@ -48,15 +48,27 @@ namespace ZipPicViewUWP
             return Task.Run<string[]>(() =>
             {
                 var entryLength = entry.Length;
+                LinkedList<string> output = new LinkedList<string>();
+                var folder = entry == "\\" ? "" : entry;
                 lock (archive)
                 {
-                    var imageEntries = from e in archive.Entries
-                                       where (!e.IsDirectory) && (entry == @"\" || e.Key.StartsWith(entry)) && !e.Key.Substring(entryLength + 1).Contains(@"\") &&
-                                       (e.Key.EndsWith(".jpg") || e.Key.EndsWith(".jpeg") || e.Key.EndsWith(".png"))
-                                       orderby e.Key
-                                       select e.Key;
-                    return imageEntries.ToArray<string>();
+                    foreach(var e in archive.Entries)
+                    {
+                        if (e.IsDirectory) continue;
+                        if (!e.Key.StartsWith(folder)) continue;
+
+                        var innerKey = e.Key.Substring(folder.Length + 1);
+
+                        if (innerKey.Contains("/") || innerKey.Contains('\\')) continue;
+
+                        var lower = innerKey.ToLower();
+
+                        if (!lower.EndsWith(".jpg") && !lower.EndsWith(".png") && !lower.EndsWith(".jpeg")) continue;
+                        output.AddLast(e.Key);
+                    }
                 }
+
+                return output.ToArray();
             });
         }
 

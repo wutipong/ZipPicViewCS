@@ -38,7 +38,6 @@ namespace ZipPicViewUWP
             }
         }
 
-
         public Image Image
         {
             get
@@ -48,5 +47,12 @@ namespace ZipPicViewUWP
         }
 
         public event RoutedEventHandler Click;
+
+        private string userData;
+        public string UserData
+        {
+            get { return userData; }
+            set { userData = value; }
+        }
     }
 }

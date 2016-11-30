@@ -104,7 +104,12 @@ namespace ZipPicViewUWP
                     var thumbnail = new Thumbnail();
                     thumbnail.Image.Source = source;
                     thumbnail.Click += Thumbnail_Click;
-                    thumbnail.Label.Text = file;
+                    if(file.Contains('\\'))
+                        thumbnail.Label.Text = file.Substring(file.LastIndexOf('\\')+1);
+                    else
+                        thumbnail.Label.Text = file.Substring(file.LastIndexOf('/') + 1);
+
+                    thumbnail.UserData = file;
 
                     token.ThrowIfCancellationRequested();
                     thumbnailGrid.Items.Add(thumbnail);
@@ -174,7 +179,7 @@ namespace ZipPicViewUWP
         {
             imageControl.Visibility = Visibility.Visible;
 
-            var file = ((Thumbnail)sender).Label.Text;
+            var file = ((Thumbnail)sender).UserData;
             currentFileIndex = Array.FindIndex(fileList, (string value) => value == file);
 
             await SetCurrentFile(file);
