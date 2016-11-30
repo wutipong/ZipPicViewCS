@@ -95,7 +95,7 @@ namespace ZipPicViewUWP
             {
                 foreach (var file in fileList)
                 {
-                    var stream = await provider.OpenEntryAsRandomAccessStreamAsync(selected, file);
+                    var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
 
                     SoftwareBitmap bitmap = await CreateResizedBitmap(stream, 200, 200);
                     var source = new SoftwareBitmapSource();
@@ -185,8 +185,7 @@ namespace ZipPicViewUWP
             loadingBorder.Visibility = Visibility.Visible;
             imageBorder.Visibility = Visibility.Collapsed;
 
-            var folder = subFolderList.SelectedItem.ToString();
-            var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(folder, file);
+            var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
             var stream = await streamTask;
 
             SoftwareBitmap bitmap = await CreateResizedBitmap(stream, (uint)canvas.RenderSize.Width, (uint)canvas.RenderSize.Height);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,57 +19,49 @@ namespace ZipPicViewUWP
             this.folder = folder;
         }
 
-        public override async Task<Stream> OpenEntryAsync(string subfolder, string entry)
+        public override async Task<Stream> OpenEntryAsync(string entry)
         {
-            return await folder.OpenStreamForReadAsync(subfolder + @"\" + entry);
+            return await folder.OpenStreamForReadAsync(entry);
         }
 
         public override async Task<string[]> GetChildEntries(string entry)
         {
             var subFolder = entry == @"\" ? folder : await folder.GetFolderAsync(entry);
 
-            var files = await subFolder.GetFilesAsync();
+            var files = await folder.GetFilesAsync(CommonFileQuery.OrderByName);
 
             var output = new List<string>(files.Count);
 
             var startIndex = subFolder.Path.Length;
             var path = subFolder.Path + @"\";
-            foreach (var f in files)
-            {
-                Debug.WriteLine(f.Name);
-            }
             foreach (var file in
                 from f in files
                 where f.Name.EndsWith(".jpg") || f.Name.EndsWith(".jpeg") || f.Name.EndsWith(".png")
                 select f.Name)
             {
-                output.Add(file);
+                output.Add(path.Substring(startIndex + 1) + file);
             }
             return output.ToArray();
         }
 
         public override async Task<string[]> GetFolderEntries()
         {
-            QueryOptions options = new QueryOptions(CommonFolderQuery.DefaultQuery);
-            options.FolderDepth = FolderDepth.Deep;
-            var subFolders = await folder.CreateFolderQueryWithOptions(options).GetFoldersAsync();
+            var subFolders = await folder.GetFoldersAsync();
 
             var output = new List<string>(subFolders.Count);
 
             output.Add(@"\");
-            var startIndex = folder.Path.Length + 1;
+            var startIndex = folder.Path.Length;
             foreach (var folder in subFolders)
             {
                 output.Add(folder.Path.Substring(startIndex));
             }
-            output.Sort();
-
             return output.ToArray();
         }
 
-        public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string subfolder, string entry)
+        public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
         {
-            return (await OpenEntryAsync(subfolder, entry)).AsRandomAccessStream();
+            return (await OpenEntryAsync(entry)).AsRandomAccessStream();
         }
     }
 }
