@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
@@ -57,9 +58,22 @@ namespace ZipPicViewUWP
             picker.FileTypeFilter.Add("*");
             var selected = await picker.PickSingleFileAsync();
             if (selected == null) return;
-            filenameTextBlock.Text = selected.Name;
+            
             var stream = await selected.OpenStreamForReadAsync();
-            SetMediaProvider(new ArchiveMediaProvider(stream));
+            AbstractMediaProvider provider = null;
+            try
+            {
+                provider = new ArchiveMediaProvider(stream);
+            }
+            catch
+            {
+                var dialog = new MessageDialog(String.Format("Cannot open file: {0}.", selected.Name), "Error");
+                await dialog.ShowAsync();
+                stream.Dispose();
+                return;
+            }
+            filenameTextBlock.Text = selected.Name;
+            SetMediaProvider(provider);
         }
 
         private async void openFolderButton_Click(object sender, RoutedEventArgs e)
