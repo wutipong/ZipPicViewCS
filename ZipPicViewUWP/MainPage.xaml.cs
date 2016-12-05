@@ -266,11 +266,11 @@ namespace ZipPicViewUWP
 
             if (deltaX > 0)
             {
-                await AdvanceImage(1);
+                await AdvanceImage(-1);
             }
             else if (deltaX < 0)
             {
-                await AdvanceImage(-1);
+                await AdvanceImage(1);
             }
         }
 
