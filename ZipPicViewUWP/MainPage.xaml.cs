@@ -202,7 +202,6 @@ namespace ZipPicViewUWP
         private async Task SetCurrentFile(string file)
         {
             loadingBorder.Visibility = Visibility.Visible;
-            imageBorder.Visibility = Visibility.Collapsed;
 
             var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
             var stream = await streamTask;
