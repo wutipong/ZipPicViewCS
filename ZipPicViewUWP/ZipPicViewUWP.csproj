@@ -93,6 +93,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include="LICENSE" />
+    <None Include="PrivacyPolicy.md" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +119,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="Readme.md" />
     <None Include="ZipPicViewUWP_StoreKey.pfx" />
     <None Include="ZipPicViewUWP_TemporaryKey.pfx" />
   </ItemGroup>
