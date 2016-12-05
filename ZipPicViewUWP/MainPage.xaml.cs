@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
+using Windows.System;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -197,6 +198,7 @@ namespace ZipPicViewUWP
             currentFileIndex = Array.FindIndex(fileList, (string value) => value == file);
 
             await SetCurrentFile(file);
+            thumbnailGrid.IsEnabled = false;
         }
 
         private async Task SetCurrentFile(string file)
@@ -236,6 +238,7 @@ namespace ZipPicViewUWP
         {
             imageBorder.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
+            thumbnailGrid.IsEnabled = true;
         }
 
         private async void imageControl_NextButtonClick(object sender, RoutedEventArgs e)
@@ -274,6 +277,22 @@ namespace ZipPicViewUWP
             }
         }
 
-        
+        private async void page_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (imageBorder.Visibility == Visibility.Collapsed) return;
+            var key = e.Key;
+            if (key == VirtualKey.Left ||
+                key == VirtualKey.PageUp)
+            {
+                await AdvanceImage(-1);
+            }
+            else if (key == VirtualKey.Right ||
+                key == VirtualKey.PageDown ||
+                key == VirtualKey.Space)
+            {
+                await AdvanceImage(1);
+            }
+            e.Handled = true;
+        }
     }
 }

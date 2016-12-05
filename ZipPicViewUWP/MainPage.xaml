@@ -5,7 +5,7 @@
     xmlns:local="using:ZipPicViewUWP"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d" KeyUp="page_KeyUp">
     <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
             <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
@@ -20,7 +20,7 @@
             </SplitView>
         </Grid>
         <Border Background="#7F000000" x:Name="imageBorder" Visibility="Collapsed">
-            <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted"  />
+            <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted"/>
         </Border>
         <Border Background="#7F000000" x:Name="loadingBorder" Visibility="Collapsed">
             <ProgressRing IsActive="True" Width="100" Height="100" />
