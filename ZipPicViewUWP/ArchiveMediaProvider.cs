@@ -1,10 +1,7 @@
 ﻿using SharpCompress.Archives;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -77,7 +74,13 @@ namespace ZipPicViewUWP
             return Task.Run<Stream>(() => {
                 lock (archive)
                 {
-                    return archive.Entries.First(e => e.Key == entry).OpenEntryStream();
+                    var outputStream = new MemoryStream();
+                    using (var entryStream = archive.Entries.First(e => e.Key == entry).OpenEntryStream())
+                    {
+                        entryStream.CopyTo(outputStream);
+                        outputStream.Seek(0, SeekOrigin.Begin);
+                    }
+                    return outputStream;
                 }
             });
         }
@@ -91,32 +94,9 @@ namespace ZipPicViewUWP
 
         public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
         {
-            using (var stream = await OpenEntryAsync(entry))
-            {
-                var memoryStream = new InMemoryRandomAccessStream();
-                var buffersize = 1024 * 64;
-                byte[] buffer = new byte[buffersize];
+            var stream = await OpenEntryAsync(entry);
+            return stream.AsRandomAccessStream();
 
-                var writer = new DataWriter(memoryStream);
-                lock (stream)
-                {
-                    while (true)
-                    {
-                        var read = stream.Read(buffer, 0, buffersize);
-
-                        if (read == 0) break;
-                        byte[] readBuffer = new byte[read];
-                        Array.Copy(buffer, readBuffer, read);
-                        writer.WriteBytes(readBuffer);
-                    }
-                }
-                await writer.StoreAsync();
-                await writer.FlushAsync();
-                writer.DetachStream();
-                memoryStream.Seek(0);
-
-                return memoryStream;   
-            }
         }
     }
 }
