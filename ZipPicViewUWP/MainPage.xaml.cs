@@ -44,6 +44,7 @@ namespace ZipPicViewUWP
             imageControl.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Collapsed;
             loadingBorder.Visibility = Visibility.Collapsed;
+            thumbnailGrid.IsEnabled = true;
         }
 
         public MainPage()
