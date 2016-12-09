@@ -100,6 +100,7 @@ namespace ZipPicViewUWP
             var provider = this.provider;
 
             fileList = await provider.GetChildEntries(selected);
+            Array.Sort(fileList);
 
             if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
 
