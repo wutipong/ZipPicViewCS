@@ -26,6 +26,7 @@ namespace ZipPicViewUWP
         private CancellationTokenSource cancellationTokenSource;
         private string[] fileList;
         private int currentFileIndex = 0;
+        private Task thumbnailTask = null;
 
         public async void SetMediaProvider(AbstractMediaProvider provider)
         {
@@ -99,14 +100,22 @@ namespace ZipPicViewUWP
             var selected = (String)e.AddedItems.First();
             var provider = this.provider;
 
-            fileList = await provider.GetChildEntries(selected);
-            Array.Sort(fileList);
+            if (cancellationTokenSource != null)
+                cancellationTokenSource.Cancel();
+            if (thumbnailTask != null)
+                await thumbnailTask;
 
-            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+            thumbnailTask = CreateThumbnails(selected, provider);
+        }
 
+        private async Task CreateThumbnails(string selected, AbstractMediaProvider provider)
+        {
             cancellationTokenSource = new CancellationTokenSource();
             var token = cancellationTokenSource.Token;
+
             thumbnailGrid.Items.Clear();
+            fileList = await provider.GetChildEntries(selected);
+            Array.Sort(fileList);
             try
             {
                 foreach (var file in fileList)
@@ -120,8 +129,8 @@ namespace ZipPicViewUWP
                     var thumbnail = new Thumbnail();
                     thumbnail.Image.Source = source;
                     thumbnail.Click += Thumbnail_Click;
-                    if(file.Contains('\\'))
-                        thumbnail.Label.Text = file.Substring(file.LastIndexOf('\\')+1);
+                    if (file.Contains('\\'))
+                        thumbnail.Label.Text = file.Substring(file.LastIndexOf('\\') + 1);
                     else
                         thumbnail.Label.Text = file.Substring(file.LastIndexOf('/') + 1);
 
