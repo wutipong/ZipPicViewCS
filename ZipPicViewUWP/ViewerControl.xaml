@@ -6,17 +6,21 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignHeight="600"
+    d:DesignWidth="800">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="controlBackground" Color="#33000000"/>
+    </UserControl.Resources>
 
     <Grid>
-        <Button Content="&gt;" x:Name="nextButton" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="100"/>
-        <Button Content="&lt;" x:Name="prevButton" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Center" Height="100"/>
+        <Button Content="&gt;" x:Name="nextButton" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Height="100" Background="{StaticResource controlBackground}"/>
+        <Button Content="&lt;" x:Name="prevButton" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Center" Height="100" Background="{StaticResource controlBackground}"/>
 
-        <RelativePanel HorizontalAlignment="Center" Grid.Row="1" MinHeight="50"  Margin="10" VerticalAlignment="Top" Visibility="Collapsed">
-            <Button Name="saveBtn" Content="Save" RelativePanel.AlignLeftWithPanel="True" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"/>
-            <ToggleButton Name="autoBtn" Content="Auto" RelativePanel.RightOf="saveBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"/>
-            <ComboBox Name="durationCmb" RelativePanel.RightOf="autoBtn" RelativePanel.AlignVerticalCenterWithPanel="True" SelectedIndex="0">
+        <RelativePanel HorizontalAlignment="Left" Grid.Row="1" MinHeight="50"  Margin="10" VerticalAlignment="Top" Background="{StaticResource controlBackground}">
+            <TextBlock x:Name="filenameTextBlock" Width="200" RelativePanel.AlignLeftWithPanel="True" VerticalAlignment="Center" Margin="0" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Text="&lt;&lt;filename&gt;&gt;" />
+            <Button Name="saveBtn" Content="Save" RelativePanel.RightOf="filenameTextBlock" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Visibility="Collapsed"/>
+            <ToggleButton Name="autoBtn" Content="Auto" RelativePanel.RightOf="saveBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Visibility="Collapsed"/>
+            <ComboBox Name="durationCmb" RelativePanel.RightOf="autoBtn" RelativePanel.AlignVerticalCenterWithPanel="True" SelectedIndex="0" Visibility="Collapsed">
                 <ListBoxItem Content="5 seconds"/>
                 <ListBoxItem Content="15 seconds"/>
                 <ListBoxItem Content="30 seconds"/>
@@ -26,7 +30,7 @@
             </ComboBox>
         </RelativePanel>
 
-        <Button x:Name="closeButton" Content="X" Width="50" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
-        <TextBlock x:Name="filenameTextBlock" VerticalAlignment="Bottom" Margin="0" />
+        <Button x:Name="closeButton" Content="X" Width="50" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Background="{StaticResource controlBackground}"/>
+       
     </Grid>
 </UserControl>
