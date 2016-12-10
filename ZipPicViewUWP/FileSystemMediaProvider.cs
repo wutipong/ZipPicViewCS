@@ -60,7 +60,6 @@ namespace ZipPicViewUWP
                 output.Add(folder.Path.Substring(startIndex));
             }
 
-            output.Sort();
             return output.ToArray();
         }
 

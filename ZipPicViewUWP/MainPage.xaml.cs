@@ -116,7 +116,19 @@ namespace ZipPicViewUWP
 
             thumbnailGrid.Items.Clear();
             fileList = await provider.GetChildEntries(selected);
-            Array.Sort(fileList);
+            Array.Sort(fileList, (string s1, string s2)=>
+            {
+                int i1, i2;
+                string s1WithoutExtension = s1.Substring(0, s1.LastIndexOf("."));
+                string s2WithoutExtension = s2.Substring(0, s2.LastIndexOf("."));
+
+                if(Int32.TryParse(s1WithoutExtension, out i1) && Int32.TryParse(s2WithoutExtension, out i2))
+                {
+                    return i1.CompareTo(i2);
+                }
+                return s1.CompareTo(s2);
+            });
+
             try
             {
                 foreach (var file in fileList)
