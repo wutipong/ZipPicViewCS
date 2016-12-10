@@ -156,7 +156,7 @@ namespace ZipPicViewUWP
                     await Task.Delay(1);
                 }
             }
-            catch (OperationCanceledException) { }
+            catch { }
             finally { cancellationTokenSource = null; }
         }
 

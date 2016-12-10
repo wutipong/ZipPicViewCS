@@ -24,6 +24,7 @@ namespace ZipPicViewUWP
                 var output = new List<string>();
                 lock (archive)
                 {
+                    if (archive == null) return output.ToArray();
                     var folderEntries = from entry in archive.Entries
                                         where entry.IsDirectory
                                         orderby entry.Key
@@ -49,7 +50,8 @@ namespace ZipPicViewUWP
                 var folder = entry == "\\" ? "" : entry;
                 lock (archive)
                 {
-                    foreach(var e in archive.Entries)
+                    if (archive == null) return output.ToArray();
+                    foreach (var e in archive.Entries)
                     {
                         if (e.IsDirectory) continue;
                         if (!e.Key.StartsWith(folder)) continue;
@@ -72,9 +74,10 @@ namespace ZipPicViewUWP
         public override Task<Stream> OpenEntryAsync(string entry)
         {
             return Task.Run<Stream>(() => {
+                var outputStream = new MemoryStream();
+                if (archive == null) return outputStream;
                 lock (archive)
                 {
-                    var outputStream = new MemoryStream();
                     using (var entryStream = archive.Entries.First(e => e.Key == entry).OpenEntryStream())
                     {
                         entryStream.CopyTo(outputStream);
@@ -88,8 +91,16 @@ namespace ZipPicViewUWP
         public override void Dispose()
         {
             base.Dispose();
-            archive.Dispose();
-            stream.Dispose();
+            lock (archive)
+            {
+                archive.Dispose();
+                archive = null;
+            }
+            lock (stream)
+            {
+                stream.Dispose();
+                stream = null;
+            }
         }
 
         public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
