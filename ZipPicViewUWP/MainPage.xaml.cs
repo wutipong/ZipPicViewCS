@@ -42,6 +42,7 @@ namespace ZipPicViewUWP
 
             subFolderList.SelectedIndex = 0;
             imageControl.Visibility = Visibility.Collapsed;
+            imageControl.AutoEnabled = false;
             imageBorder.Visibility = Visibility.Collapsed;
             loadingBorder.Visibility = Visibility.Collapsed;
             thumbnailGrid.IsEnabled = true;
@@ -50,6 +51,12 @@ namespace ZipPicViewUWP
         public MainPage()
         {
             this.InitializeComponent();
+            imageControl.Timer.Tick += imageControl_timer_Tick;
+        }
+
+        private async void imageControl_timer_Tick(object sender, object e)
+        {
+            await AdvanceImage(1);
         }
 
         private async void openFileButton_Click(object sender, RoutedEventArgs e)
@@ -262,6 +269,7 @@ namespace ZipPicViewUWP
             imageBorder.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
             thumbnailGrid.IsEnabled = true;
+            imageControl.AutoEnabled = false;
         }
 
         private async void imageControl_NextButtonClick(object sender, RoutedEventArgs e)
@@ -281,6 +289,11 @@ namespace ZipPicViewUWP
             {
                 if (currentFileIndex < 0) currentFileIndex += fileList.Length;
                 else if (currentFileIndex >= fileList.Length) currentFileIndex -= fileList.Length;
+            }
+            if (imageControl.Timer.IsEnabled)
+            {
+                imageControl.Timer.Stop();
+                imageControl.Timer.Start();
             }
 
             await SetCurrentFile(fileList[currentFileIndex]);

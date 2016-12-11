@@ -19,9 +19,19 @@ namespace ZipPicViewUWP
 {
     public sealed partial class ViewerControl : UserControl
     {
+        private static readonly TimeSpan[] advanceDurations = { new TimeSpan(0,0,5), new TimeSpan(0, 0, 10), new TimeSpan(0, 0, 15), new TimeSpan(0, 0, 30) };
+        private int counter = 0;
+        private DispatcherTimer timer;
+
+        public DispatcherTimer Timer
+        {
+            get { return timer; }
+        }
+
         public ViewerControl()
         {
             this.InitializeComponent();
+            timer = new DispatcherTimer();
         }
 
         public String Filename
@@ -46,6 +56,25 @@ namespace ZipPicViewUWP
         {
             add { closeButton.Click += value; }
             remove { closeButton.Click -= value; }
+        }
+
+        public bool? AutoEnabled
+        {
+            get { return autoBtn.IsChecked; }
+            set { autoBtn.IsChecked = value; }
+        }
+
+        private void autoBtn_Checked(object sender, RoutedEventArgs e)
+        {
+            autoDurationBtn.IsEnabled = false;
+            timer.Interval =  advanceDurations[durationList.SelectedIndex];
+            timer.Start();
+        }
+
+        private void autoBtn_Unchecked(object sender, RoutedEventArgs e)
+        {
+            autoDurationBtn.IsEnabled = true;
+            timer.Stop();
         }
     }
 }

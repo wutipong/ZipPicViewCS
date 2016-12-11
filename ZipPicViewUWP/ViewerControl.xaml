@@ -19,15 +19,19 @@
         <RelativePanel HorizontalAlignment="Left" Grid.Row="1" MinHeight="50"  Margin="10" VerticalAlignment="Top" Background="{StaticResource controlBackground}">
             <TextBlock x:Name="filenameTextBlock" Width="200" RelativePanel.AlignLeftWithPanel="True" VerticalAlignment="Center" Margin="0" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Text="&lt;&lt;filename&gt;&gt;" />
             <Button Name="saveBtn" Content="Save" RelativePanel.RightOf="filenameTextBlock" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Visibility="Collapsed"/>
-            <ToggleButton Name="autoBtn" Content="Auto" RelativePanel.RightOf="saveBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Visibility="Collapsed"/>
-            <ComboBox Name="durationCmb" RelativePanel.RightOf="autoBtn" RelativePanel.AlignVerticalCenterWithPanel="True" SelectedIndex="0" Visibility="Collapsed">
-                <ListBoxItem Content="5 seconds"/>
-                <ListBoxItem Content="15 seconds"/>
-                <ListBoxItem Content="30 seconds"/>
-                <ListBoxItem Content="1 minutes"/>
-                <ListBoxItem Content="5 minutes"/>
-                <ListBoxItem Content="15 minutes"/>
-            </ComboBox>
+            <ToggleButton Name="autoBtn" RelativePanel.RightOf="saveBtn" Content="Auto" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Checked="autoBtn_Checked" Unchecked="autoBtn_Unchecked" />
+            <Button Name="autoDurationBtn" Content="&#8711;" RelativePanel.RightOf="autoBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" >
+                <Button.Flyout>
+                    <Flyout>
+                        <ListBox x:Name="durationList" >
+                            <ListBoxItem Content="5 seconds" IsSelected="True"/>
+                            <ListBoxItem Content="10 seconds"/>
+                            <ListBoxItem Content="15 seconds"/>
+                            <ListBoxItem Content="30 seconds"/>
+                        </ListBox>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
         </RelativePanel>
 
         <Button x:Name="closeButton" Content="X" Width="50" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Background="{StaticResource controlBackground}"/>
