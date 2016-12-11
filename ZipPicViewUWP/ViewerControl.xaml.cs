@@ -20,7 +20,6 @@ namespace ZipPicViewUWP
     public sealed partial class ViewerControl : UserControl
     {
         private static readonly TimeSpan[] advanceDurations = { new TimeSpan(0,0,5), new TimeSpan(0, 0, 10), new TimeSpan(0, 0, 15), new TimeSpan(0, 0, 30) };
-        private int counter = 0;
         private DispatcherTimer timer;
 
         public DispatcherTimer Timer
@@ -58,6 +57,12 @@ namespace ZipPicViewUWP
             remove { closeButton.Click -= value; }
         }
 
+        public event RoutedEventHandler SaveButtonClick
+        {
+            add { saveBtn.Click += value; }
+            remove { saveBtn.Click -= value; }
+        }
+
         public bool? AutoEnabled
         {
             get { return autoBtn.IsChecked; }
@@ -69,12 +74,14 @@ namespace ZipPicViewUWP
             autoDurationBtn.IsEnabled = false;
             timer.Interval =  advanceDurations[durationList.SelectedIndex];
             timer.Start();
+            saveBtn.IsEnabled = false;
         }
 
         private void autoBtn_Unchecked(object sender, RoutedEventArgs e)
         {
             autoDurationBtn.IsEnabled = true;
             timer.Stop();
+            saveBtn.IsEnabled = true;
         }
     }
 }

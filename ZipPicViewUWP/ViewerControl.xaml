@@ -18,7 +18,7 @@
 
         <RelativePanel HorizontalAlignment="Left" Grid.Row="1" MinHeight="50"  Margin="10" VerticalAlignment="Top" Background="{StaticResource controlBackground}">
             <TextBlock x:Name="filenameTextBlock" Width="200" RelativePanel.AlignLeftWithPanel="True" VerticalAlignment="Center" Margin="0" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Text="&lt;&lt;filename&gt;&gt;" />
-            <Button Name="saveBtn" Content="Save" RelativePanel.RightOf="filenameTextBlock" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Visibility="Collapsed"/>
+            <Button Name="saveBtn" Content="Save As" RelativePanel.RightOf="filenameTextBlock" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"/>
             <ToggleButton Name="autoBtn" RelativePanel.RightOf="saveBtn" Content="Auto" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Checked="autoBtn_Checked" Unchecked="autoBtn_Unchecked" />
             <Button Name="autoDurationBtn" Content="&#8711;" RelativePanel.RightOf="autoBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" >
                 <Button.Flyout>

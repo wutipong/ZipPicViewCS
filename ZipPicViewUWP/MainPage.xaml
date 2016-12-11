@@ -25,7 +25,7 @@
         <Border Background="#7F000000" x:Name="loadingBorder" Visibility="Collapsed">
             <ProgressRing IsActive="True" Width="100" Height="100" />
         </Border>
-        <local:ViewerControl x:Name="imageControl" Height="1019" Width="1920" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick"/>
+        <local:ViewerControl x:Name="imageControl" Height="1019" Width="1920" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick" SaveButtonClick="imageControl_SaveButtonClick"/>
     </Canvas>
     <Page.BottomAppBar>
         <CommandBar>

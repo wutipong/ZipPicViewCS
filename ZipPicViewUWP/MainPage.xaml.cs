@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -280,6 +281,28 @@ namespace ZipPicViewUWP
         private async void imageControl_PrevButtonClick(object sender, RoutedEventArgs e)
         {
             await AdvanceImage(-1);
+        }
+
+        private async void imageControl_SaveButtonClick(object sender, RoutedEventArgs e)
+        {
+            var filename = fileList[currentFileIndex];
+            var filenameWithoutPath = filename;
+            if (filenameWithoutPath.Contains("\\")) filenameWithoutPath = filenameWithoutPath.Substring(filename.LastIndexOf("\\")+1);
+            else if(filenameWithoutPath.Contains("/")) filenameWithoutPath = filenameWithoutPath.Substring(filename.LastIndexOf("/")+1);
+
+            var picker = new FileSavePicker();
+            
+            picker.SuggestedFileName = filename;
+            picker.FileTypeChoices.Add("All", new List<string>() { "." });
+            var file = await picker.PickSaveFileAsync();
+            if (file == null) return;
+
+            var output = await file.OpenStreamForWriteAsync();
+            var input = await provider.OpenEntryAsync(filename);
+            input.CopyTo(output);
+
+            input.Dispose();
+            output.Dispose();
         }
 
         private async Task AdvanceImage(int step)
