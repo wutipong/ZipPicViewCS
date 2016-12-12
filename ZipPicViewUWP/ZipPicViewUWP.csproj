@@ -126,6 +126,9 @@
   <ItemGroup>
     <Content Include="Assets\applogo.png" />
     <Content Include="Assets\applogo.svg" />
+    <Content Include="Assets\beep.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\NewStoreLogo.scale-100.png" />
     <Content Include="Assets\NewStoreLogo.scale-125.png" />
     <Content Include="Assets\NewStoreLogo.scale-150.png" />

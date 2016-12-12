@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -28,6 +27,7 @@ namespace ZipPicViewUWP
         private string[] fileList;
         private int currentFileIndex = 0;
         private Task thumbnailTask = null;
+        private MediaElement clickSound;
 
         public async void SetMediaProvider(AbstractMediaProvider provider)
         {
@@ -52,12 +52,28 @@ namespace ZipPicViewUWP
         public MainPage()
         {
             this.InitializeComponent();
-            imageControl.Timer.Tick += imageControl_timer_Tick;
         }
 
-        private async void imageControl_timer_Tick(object sender, object e)
+        private async void page_Loaded(object sender, RoutedEventArgs e)
         {
-            await AdvanceImage(1);
+            clickSound = await LoadSound("beep.wav");
+            imageControl.OnPreCount += ImageControl_OnPreCount;
+        }
+
+        private void ImageControl_OnPreCount(object sender)
+        {
+            clickSound.Play();
+        }
+
+        private async Task<MediaElement> LoadSound(string filename)
+        {
+            var sound = new MediaElement();
+            var soundFile = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(String.Format(@"Assets\{0}", filename));
+            sound.AutoPlay = false;
+            sound.SetSource(await soundFile.OpenReadAsync(), "");
+            sound.Stop();
+            
+            return sound;
         }
 
         private async void openFileButton_Click(object sender, RoutedEventArgs e)
@@ -313,11 +329,8 @@ namespace ZipPicViewUWP
                 if (currentFileIndex < 0) currentFileIndex += fileList.Length;
                 else if (currentFileIndex >= fileList.Length) currentFileIndex -= fileList.Length;
             }
-            if (imageControl.Timer.IsEnabled)
-            {
-                imageControl.Timer.Stop();
-                imageControl.Timer.Start();
-            }
+            
+            imageControl.ResetCounter();
 
             await SetCurrentFile(fileList[currentFileIndex]);
         }
@@ -353,5 +366,7 @@ namespace ZipPicViewUWP
             }
             e.Handled = true;
         }
+
+       
     }
 }

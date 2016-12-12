@@ -23,18 +23,22 @@
             <Button Name="autoDurationBtn" Content="&#8711;" RelativePanel.RightOf="autoBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" >
                 <Button.Flyout>
                     <Flyout>
-                        <ListBox x:Name="durationList" >
-                            <ListBoxItem Content="5 seconds" IsSelected="True"/>
-                            <ListBoxItem Content="10 seconds"/>
-                            <ListBoxItem Content="15 seconds"/>
-                            <ListBoxItem Content="30 seconds"/>
-                        </ListBox>
+                        <Grid Height="366" VerticalAlignment="Top">
+                            <ToggleSwitch x:Name="precountToggle" Header="Click" VerticalAlignment="Top"/>
+                            <ListBox x:Name="durationList" VerticalAlignment="Top" Margin="0,60,0,0" >
+                                <ListBoxItem Content="5 seconds" IsSelected="True"/>
+                                <ListBoxItem Content="10 seconds"/>
+                                <ListBoxItem Content="15 seconds"/>
+                                <ListBoxItem Content="30 seconds"/>
+                            </ListBox>
+                        </Grid>
+
                     </Flyout>
                 </Button.Flyout>
             </Button>
         </RelativePanel>
 
         <Button x:Name="closeButton" Content="X" Width="50" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Background="{StaticResource controlBackground}"/>
-       
+
     </Grid>
 </UserControl>

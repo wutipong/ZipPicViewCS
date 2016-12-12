@@ -5,7 +5,7 @@
     xmlns:local="using:ZipPicViewUWP"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" KeyUp="page_KeyUp">
+    mc:Ignorable="d" KeyUp="page_KeyUp" Loaded="page_Loaded">
     <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
             <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
