@@ -47,6 +47,7 @@ namespace ZipPicViewUWP
             imageBorder.Visibility = Visibility.Collapsed;
             loadingBorder.Visibility = Visibility.Collapsed;
             thumbnailGrid.IsEnabled = true;
+            this.IsEnabled = true;
         }
 
         public MainPage()
@@ -78,13 +79,18 @@ namespace ZipPicViewUWP
 
         private async void openFileButton_Click(object sender, RoutedEventArgs e)
         {
+            this.IsEnabled = false;
             var picker = new FileOpenPicker();
             picker.FileTypeFilter.Add(".zip");
             picker.FileTypeFilter.Add(".rar");
             picker.FileTypeFilter.Add(".7z");
             picker.FileTypeFilter.Add("*");
             var selected = await picker.PickSingleFileAsync();
-            if (selected == null) return;
+            if (selected == null)
+            {
+                this.IsEnabled = true;
+                return;
+            }
             
             var stream = await selected.OpenStreamForReadAsync();
             AbstractMediaProvider provider = null;
@@ -97,6 +103,7 @@ namespace ZipPicViewUWP
                 var dialog = new MessageDialog(String.Format("Cannot open file: {0}.", selected.Name), "Error");
                 await dialog.ShowAsync();
                 stream.Dispose();
+                this.IsEnabled = true;
                 return;
             }
             filenameTextBlock.Text = selected.Name;
@@ -105,10 +112,15 @@ namespace ZipPicViewUWP
 
         private async void openFolderButton_Click(object sender, RoutedEventArgs e)
         {
+            this.IsEnabled = false;
             var picker = new FolderPicker();
             picker.FileTypeFilter.Add("*");
             var selected = await picker.PickSingleFolderAsync();
-            if (selected == null) return;
+            if (selected == null)
+            {
+                this.IsEnabled = true;
+                return;
+            }
             filenameTextBlock.Text = selected.Name;
 
             SetMediaProvider(new FileSystemMediaProvider(selected));
