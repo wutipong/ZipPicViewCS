@@ -441,5 +441,10 @@ namespace ZipPicViewUWP
             ApplicationView.GetForCurrentView().ExitFullScreenMode();
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
         }
+
+        private void page_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            fullscreenButton.IsChecked = ApplicationView.GetForCurrentView().IsFullScreenMode;
+        }
     }
 }

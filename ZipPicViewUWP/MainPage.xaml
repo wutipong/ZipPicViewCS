@@ -5,7 +5,7 @@
     xmlns:local="using:ZipPicViewUWP"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" KeyUp="page_KeyUp" Loaded="page_Loaded">
+    mc:Ignorable="d" KeyUp="page_KeyUp" Loaded="page_Loaded" SizeChanged="page_SizeChanged">
     <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
             <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
@@ -27,10 +27,10 @@
         </Border>
         <local:ViewerControl x:Name="imageControl" Height="1019" Width="1920" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick" SaveButtonClick="imageControl_SaveButtonClick"/>
     </Canvas>
-    <Page.BottomAppBar>
+    <Page.TopAppBar>
         <CommandBar>
             <CommandBar.Content>
-                <Grid>
+                <Grid Margin="12,14">
                     <TextBlock x:Name="filenameTextBlock" Text="&lt;None&gt;" UseLayoutRounding="True" />
                 </Grid>
             </CommandBar.Content>
@@ -41,7 +41,7 @@
             <AppBarSeparator />
             <AppBarButton x:Name="subFolderButton" Icon="List" Label="Sub Folder List" Click="subFolderButton_Click"/>
         </CommandBar>
-    </Page.BottomAppBar>
+    </Page.TopAppBar>
 
     
 </Page>
