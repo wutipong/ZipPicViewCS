@@ -26,6 +26,7 @@ namespace ZipPicViewUWP
         private AbstractMediaProvider provider;
         private CancellationTokenSource cancellationTokenSource;
         private string[] fileList;
+        private string[] folderList;
         private int currentFileIndex = 0;
         private Task thumbnailTask = null;
         private MediaElement clickSound;
@@ -34,21 +35,63 @@ namespace ZipPicViewUWP
         {
             if (this.provider != null) this.provider.Dispose();
             this.provider = provider;
-            subFolderList.Items.Clear();
-            var folders = await provider.GetFolderEntries();
+            subFolderListCtrl.Items.Clear();
+            folderList = await provider.GetFolderEntries();
 
-            foreach (var folder in folders)
-            {
-                subFolderList.Items.Add(folder);
-            }
+            RebuildSubFolderList();
 
-            subFolderList.SelectedIndex = 0;
+            subFolderListCtrl.SelectedIndex = 0;
             imageControl.Visibility = Visibility.Collapsed;
             imageControl.AutoEnabled = false;
             imageBorder.Visibility = Visibility.Collapsed;
             loadingBorder.Visibility = Visibility.Collapsed;
             thumbnailGrid.IsEnabled = true;
             this.IsEnabled = true;
+        }
+
+        struct FolderListItem
+        {
+            private readonly string display;
+            private readonly string value;
+
+            public string Value { get { return value; } }
+
+            public FolderListItem(string display, string value)
+            {
+                this.display = display;
+                this.value = value;
+            }
+
+            public override string ToString()
+            {
+                return display;
+            }
+        }
+
+        private void RebuildSubFolderList()
+        {
+            Array.Sort(folderList);
+
+            foreach (var f in folderList)
+            {
+                var folder = f;
+                if(folder != "\\")
+                {
+                    char separator = folder.Contains("\\") ? '\\' : '/';
+                    int count = folder.Count(c => c == separator);
+
+                    if(folder.EndsWith("" + separator))
+                        folder = folder.Substring(0, folder.Length - 1);
+
+                    folder = folder.Substring(folder.LastIndexOf(separator) + 1);
+
+                    var prefix = "  ";
+                    for (int i = 0; i < count; i++) prefix += "  ";
+                    folder = prefix + "\u25CF " + folder;
+                }
+                var item = new FolderListItem(folder, f);
+                subFolderListCtrl.Items.Add(item);
+            }
         }
 
         public MainPage()
@@ -135,7 +178,7 @@ namespace ZipPicViewUWP
         private async void subFolderList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count == 0) return;
-            var selected = (String)e.AddedItems.First();
+            var selected = ((FolderListItem) e.AddedItems.First()).Value;
             var provider = this.provider;
 
             if (cancellationTokenSource != null)

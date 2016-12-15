@@ -13,7 +13,7 @@
                     <GridView x:Name="thumbnailGrid"></GridView>
                 </SplitView.Content>
                 <SplitView.Pane>
-                    <ListView x:Name="subFolderList" SelectionChanged="subFolderList_SelectionChanged" >
+                    <ListView x:Name="subFolderListCtrl" SelectionChanged="subFolderList_SelectionChanged" >
 
                     </ListView>
                 </SplitView.Pane>
