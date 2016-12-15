@@ -70,7 +70,12 @@ namespace ZipPicViewUWP
 
         private void RebuildSubFolderList()
         {
-            Array.Sort(folderList);
+            Array.Sort(folderList, (string s1, string s2) =>
+            {
+                if (s1 == "\\") return -1;
+                else if (s2 == "\\") return 1;
+                else return s1.CompareTo(s2);
+            });
 
             foreach (var f in folderList)
             {
@@ -85,7 +90,7 @@ namespace ZipPicViewUWP
 
                     folder = folder.Substring(folder.LastIndexOf(separator) + 1);
 
-                    var prefix = "  ";
+                    var prefix = "";
                     for (int i = 0; i < count; i++) prefix += "  ";
                     folder = prefix + "\u25CF " + folder;
                 }
@@ -187,6 +192,10 @@ namespace ZipPicViewUWP
                 await thumbnailTask;
 
             thumbnailTask = CreateThumbnails(selected, provider);
+
+            var pathToken = selected.Split(new char[] { '/', '\\' });
+
+            selectFolderTextBlock.Text = ": " + string.Join("\\", pathToken);
         }
 
         private async Task CreateThumbnails(string selected, AbstractMediaProvider provider)
