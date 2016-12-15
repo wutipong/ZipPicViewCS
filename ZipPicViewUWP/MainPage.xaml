@@ -34,6 +34,8 @@
                     <TextBlock x:Name="filenameTextBlock" Text="&lt;None&gt;" UseLayoutRounding="True" />
                 </Grid>
             </CommandBar.Content>
+            <AppBarToggleButton x:Name="fullscreenButton" Icon="FullScreen" Label="FullScreen" Checked="fullscreenButton_Checked" Unchecked="fullscreenButton_Unchecked"/>
+            <AppBarSeparator />
             <AppBarButton x:Name="openFileButton" Icon="OpenFile" Label="Open File" Click="openFileButton_Click"/>
             <AppBarButton x:Name="openFolderButton" Icon="Folder" Label="Open Folder" Click="openFolderButton_Click"/>
             <AppBarSeparator />

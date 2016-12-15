@@ -9,6 +9,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Popups;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
@@ -379,6 +380,23 @@ namespace ZipPicViewUWP
             e.Handled = true;
         }
 
-       
+        private void fullscreenButton_Checked(object sender, RoutedEventArgs e)
+        {
+            fullscreenButton.Icon = new SymbolIcon(Symbol.BackToWindow);
+            fullscreenButton.Label = "Exit Fullscreen";
+            var view = ApplicationView.GetForCurrentView();
+            if (view.TryEnterFullScreenMode())
+            {
+                ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
+            }
+        }
+
+        private void fullscreenButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            fullscreenButton.Icon = new SymbolIcon(Symbol.FullScreen);
+            fullscreenButton.Label = "Fullscreen";
+            ApplicationView.GetForCurrentView().ExitFullScreenMode();
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
+        }
     }
 }

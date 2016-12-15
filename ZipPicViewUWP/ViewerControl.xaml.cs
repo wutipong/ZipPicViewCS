@@ -123,6 +123,7 @@ namespace ZipPicViewUWP
 
         private void autoBtn_Checked(object sender, RoutedEventArgs e)
         {
+            autoBtn.Content = new SymbolIcon(Symbol.Pause);
             autoDurationBtn.IsEnabled = false;
             timer.Start();
             saveBtn.IsEnabled = false;
@@ -136,6 +137,7 @@ namespace ZipPicViewUWP
 
         private void autoBtn_Unchecked(object sender, RoutedEventArgs e)
         {
+            autoBtn.Content = new SymbolIcon(Symbol.Play);
             autoDurationBtn.IsEnabled = true;
             timer.Stop();
             saveBtn.IsEnabled = true;
