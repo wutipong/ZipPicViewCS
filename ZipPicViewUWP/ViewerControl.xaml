@@ -33,7 +33,7 @@
                 <Button.Flyout>
                     <Flyout>
                         <Grid Height="366" VerticalAlignment="Top">
-                            <ToggleSwitch x:Name="precountToggle" Header="Click" VerticalAlignment="Top"/>
+                            <ToggleSwitch x:Name="precountToggle" Header="Pre-count" VerticalAlignment="Top"/>
                             <ListBox x:Name="durationList" VerticalAlignment="Top" Margin="0,60,0,0" >
                                 <ListBoxItem Content="5 seconds" IsSelected="True"/>
                                 <ListBoxItem Content="10 seconds"/>
