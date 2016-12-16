@@ -226,10 +226,8 @@ namespace ZipPicViewUWP
                     var thumbnail = new Thumbnail();
                     thumbnail.Image.Source = source;
                     thumbnail.Click += Thumbnail_Click;
-                    if (file.Contains('\\'))
-                        thumbnail.Label.Text = file.Substring(file.LastIndexOf('\\') + 1);
-                    else
-                        thumbnail.Label.Text = file.Substring(file.LastIndexOf('/') + 1);
+
+                    thumbnail.Label.Text = ExtractFilename(file);
 
                     thumbnail.UserData = file;
 
