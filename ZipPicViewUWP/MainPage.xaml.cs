@@ -14,13 +14,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
 namespace ZipPicViewUWP
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         private AbstractMediaProvider provider;
@@ -326,11 +321,17 @@ namespace ZipPicViewUWP
             var setSourceTask = source.SetBitmapAsync(bitmap);
 
             image.Source = source;
-            imageControl.Filename = file;
+            imageControl.Filename = ExtractFilename(file);
 
             await setSourceTask;
             loadingBorder.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Visible;
+        }
+
+        private static string ExtractFilename(string file)
+        {
+            int index = file.LastIndexOfAny(new char[] { '\\', '/' });
+            return index >= 0 ? file.Substring(index + 1) : file;
         }
 
         private void canvas_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -368,12 +369,10 @@ namespace ZipPicViewUWP
         {
             var filename = fileList[currentFileIndex];
             var filenameWithoutPath = filename;
-            if (filenameWithoutPath.Contains("\\")) filenameWithoutPath = filenameWithoutPath.Substring(filename.LastIndexOf("\\")+1);
-            else if(filenameWithoutPath.Contains("/")) filenameWithoutPath = filenameWithoutPath.Substring(filename.LastIndexOf("/")+1);
-
+           
             var picker = new FileSavePicker();
             
-            picker.SuggestedFileName = filename;
+            picker.SuggestedFileName = ExtractFilename(filename);
             picker.FileTypeChoices.Add("All", new List<string>() { "." });
             var file = await picker.PickSaveFileAsync();
             if (file == null) return;
