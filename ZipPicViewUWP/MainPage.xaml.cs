@@ -401,14 +401,15 @@ namespace ZipPicViewUWP
         {
             var deltaX = e.Cumulative.Translation.X;
 
-            if (deltaX > 0)
+            if (deltaX > 5)
             {
                 await AdvanceImage(-1);
             }
-            else if (deltaX < 0)
+            else if (deltaX < -5)
             {
                 await AdvanceImage(1);
             }
+           
         }
 
         private async void page_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
@@ -451,6 +452,11 @@ namespace ZipPicViewUWP
         private void page_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             fullscreenButton.IsChecked = ApplicationView.GetForCurrentView().IsFullScreenMode;
+        }
+
+        private void image_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            imageControl.Visibility = imageControl.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }

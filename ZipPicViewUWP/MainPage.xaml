@@ -18,7 +18,7 @@
             </SplitView>
         </Grid>
         <Border Background="#7F000000" x:Name="imageBorder" Visibility="Collapsed">
-            <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted"/>
+            <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted" Tapped="image_Tapped"/>
         </Border>
         <local:ViewerControl x:Name="imageControl" Height="1019" Width="1920" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick" SaveButtonClick="imageControl_SaveButtonClick"/>
         <Border Background="#7F000000" x:Name="loadingBorder" Visibility="Collapsed">
