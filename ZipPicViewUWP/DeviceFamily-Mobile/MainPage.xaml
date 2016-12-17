@@ -10,10 +10,12 @@
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
             <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
                 <SplitView.Content>
-                    <GridView x:Name="thumbnailGrid"></GridView>
+                    <GridView x:Name="thumbnailGrid"/>
                 </SplitView.Content>
                 <SplitView.Pane>
-                    <ListView x:Name="subFolderListCtrl" SelectionChanged="subFolderList_SelectionChanged" />
+                    <ListView x:Name="subFolderListCtrl" SelectionChanged="subFolderList_SelectionChanged" >
+
+                    </ListView>
                 </SplitView.Pane>
             </SplitView>
         </Grid>
@@ -34,13 +36,16 @@
                 </StackPanel>
             </CommandBar.Content>
             <AppBarToggleButton x:Name="fullscreenButton" Icon="FullScreen" Label="FullScreen" Checked="fullscreenButton_Checked" Unchecked="fullscreenButton_Unchecked"/>
-            <AppBarSeparator />
+        </CommandBar>
+    </Page.TopAppBar>
+    <Page.BottomAppBar>
+        <CommandBar>
             <AppBarButton x:Name="openFileButton" Icon="OpenFile" Label="Open File" Click="openFileButton_Click"/>
             <AppBarButton x:Name="openFolderButton" Icon="Folder" Label="Open Folder" Click="openFolderButton_Click"/>
             <AppBarSeparator />
             <AppBarButton x:Name="subFolderButton" Icon="List" Label="Sub Folder List" Click="subFolderButton_Click"/>
         </CommandBar>
-    </Page.TopAppBar>
+    </Page.BottomAppBar>
 
     
 </Page>
