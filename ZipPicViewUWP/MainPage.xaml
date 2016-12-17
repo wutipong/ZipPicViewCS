@@ -28,7 +28,7 @@
     <Page.TopAppBar>
         <CommandBar>
             <CommandBar.Content>
-                <StackPanel Margin="12,14" Orientation="Horizontal">
+                <StackPanel Margin="12,14" Orientation="Horizontal" MaxWidth="500">
                     <TextBlock x:Name="filenameTextBlock" Text="&lt;None&gt;" UseLayoutRounding="True" />
                     <TextBlock x:Name="selectFolderTextBlock"/>
                 </StackPanel>
