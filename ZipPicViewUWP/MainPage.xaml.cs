@@ -137,10 +137,19 @@ namespace ZipPicViewUWP
             }
             
             var stream = await selected.OpenStreamForReadAsync();
+            string password = null;
+            if (ArchiveMediaProvider.IsArchiveEncrypted(stream))
+            {
+                var dialog = new PasswordDialog();
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                    return;
+                password = dialog.Password;
+            }
             AbstractMediaProvider provider = null;
             try
             {
-                provider = new ArchiveMediaProvider(stream);
+                provider = new ArchiveMediaProvider(stream, password);
             }
             catch
             {

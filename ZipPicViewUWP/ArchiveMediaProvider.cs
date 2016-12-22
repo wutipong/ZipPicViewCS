@@ -1,4 +1,6 @@
 ﻿using SharpCompress.Archives;
+using SharpCompress.Archives.Zip;
+using SharpCompress.Readers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,10 +14,25 @@ namespace ZipPicViewUWP
         IArchive archive;
         Stream stream;
 
-        public ArchiveMediaProvider(Stream stream)
+        public static bool IsArchiveEncrypted(Stream stream)
+        {
+            var archive = ArchiveFactory.Open(stream);
+            var entry = archive.Entries.First(e => !e.IsDirectory);
+
+            if (entry != null && entry.IsEncrypted)
+                return true;
+            
+            return false;
+        }
+
+        public ArchiveMediaProvider(Stream stream, string password)
         {
             this.stream = stream;
-            archive = ArchiveFactory.Open(stream);
+            var options = new ReaderOptions()
+            {
+                Password = password
+            };
+            archive = ArchiveFactory.Open(stream, options);
         }
         public override async Task<string[]> GetFolderEntries()
         {
