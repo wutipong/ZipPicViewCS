@@ -36,7 +36,7 @@ namespace ZipPicViewUWP
             
             foreach (var path in
                 from f in files
-                where f.Name.EndsWith(".jpg") || f.Name.EndsWith(".jpeg") || f.Name.EndsWith(".png")
+                where f.Name.ToLower().EndsWith(".jpg") || f.Name.ToLower().EndsWith(".jpeg") || f.Name.ToLower().EndsWith(".png")
                 select f.Path)
             {
                 output.Add(path.Substring(folder.Path.Length + 1));
