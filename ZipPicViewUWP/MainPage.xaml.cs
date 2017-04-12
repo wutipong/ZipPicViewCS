@@ -311,26 +311,34 @@ namespace ZipPicViewUWP
             var file = ((Thumbnail)sender).UserData;
             currentFileIndex = Array.FindIndex(fileList, (string value) => value == file);
 
-            await SetCurrentFile(file);
+            await SetCurrentFile(file, false);
             thumbnailGrid.IsEnabled = false;
         }
 
-        private async Task SetCurrentFile(string file)
+        private async Task SetCurrentFile(string file, bool withDelay = true)
         {
+            var delayTask = Task.Delay(withDelay ? 1000: 0);
+
+            uint width = (uint)canvas.RenderSize.Width;
+            uint height = (uint)canvas.RenderSize.Height;
+
+            var createBitmapTask = Task.Run(async () =>
+            {
+                var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
+                var bitmap = await CreateResizedBitmap(stream, width, height);
+
+                return bitmap;
+            });
+            
+
+            await delayTask;
             loadingBorder.Visibility = Visibility.Visible;
 
-            var streamTask = provider.OpenEntryAsRandomAccessStreamAsync(file);
-            var stream = await streamTask;
-
-            SoftwareBitmap bitmap = await CreateResizedBitmap(stream, (uint)canvas.RenderSize.Width, (uint)canvas.RenderSize.Height);
-
             var source = new SoftwareBitmapSource();
-            var setSourceTask = source.SetBitmapAsync(bitmap);
-
+            await source.SetBitmapAsync(await createBitmapTask);
             image.Source = source;
             imageControl.Filename = ExtractFilename(file);
 
-            await setSourceTask;
             loadingBorder.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Visible;
         }
