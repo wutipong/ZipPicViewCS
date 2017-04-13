@@ -1,5 +1,4 @@
 ﻿using SharpCompress.Archives;
-using SharpCompress.Archives.Zip;
 using SharpCompress.Readers;
 using System.Collections.Generic;
 using System.IO;
@@ -9,14 +8,32 @@ using Windows.Storage.Streams;
 
 namespace ZipPicViewUWP
 {
-    class ArchiveMediaProvider : AbstractMediaProvider
+    internal class ArchiveMediaProvider : AbstractMediaProvider
     {
-        IArchive archive;
-        protected IArchive Archive
+        protected IArchive Archive { get; set; }
+
+        protected string[] FileList
         {
-            get { return archive; }
+            get
+            {
+                if (fileList == null) fileList = CreateFileList();
+                return fileList;
+            }
         }
-        Stream stream;
+
+        protected string[] FolderList
+        {
+            get
+            {
+                if (folderList == null) folderList = CreateFolderList();
+                return folderList;
+            }
+        }
+
+        private string[] fileList;
+        private string[] folderList;
+
+        private Stream stream;
 
         public static bool IsArchiveEncrypted(Stream stream)
         {
@@ -25,12 +42,12 @@ namespace ZipPicViewUWP
 
             if (entry != null && entry.IsEncrypted)
                 return true;
-            
+
             return false;
         }
 
         public static ArchiveMediaProvider Create(Stream stream, string password)
-        {            
+        {
             var options = new ReaderOptions()
             {
                 Password = password
@@ -44,72 +61,85 @@ namespace ZipPicViewUWP
 
         public ArchiveMediaProvider(Stream stream, IArchive archive)
         {
-            this.archive = archive;
+            this.Archive = archive;
             this.stream = stream;
+
+            if (archive.Type == SharpCompress.Common.ArchiveType.Rar)
+                Separator = '\\';
+            else
+                Separator = '/';
         }
 
         public override async Task<string[]> GetFolderEntries()
         {
-            return await Task.Run<string[]>(() =>
+            return await Task.Run(() => FolderList);
+        }
+
+        protected virtual string[] CreateFolderList()
+        {
+            var output = new List<string>();
+            lock (Archive)
             {
-                var output = new List<string>();
-                lock (archive)
+                if (Archive != null)
                 {
-                    if (archive == null) return output.ToArray();
-                    var folderEntries = from entry in archive.Entries
+                    var folderEntries = from entry in Archive.Entries
                                         where entry.IsDirectory
                                         orderby entry.Key
                                         select entry.Key;
 
-                    
-                    output.Add(@"\");
+                    output.Add(Root);
                     output.AddRange(folderEntries);
                 }
+            }
 
-                return output.ToArray();
-            });
-            
-            
+            return output.ToArray();
         }
 
         public override Task<string[]> GetChildEntries(string entry)
         {
-            return Task.Run<string[]>(() =>
+            return Task.Run(() =>
             {
                 var entryLength = entry.Length;
                 LinkedList<string> output = new LinkedList<string>();
-                var folder = entry == "\\" ? "" : entry;
-                lock (archive)
+                var folder = entry == Root ? "" : entry;
+
+                foreach (var file in FileList)
                 {
-                    if (archive == null) return output.ToArray();
-                    foreach (var e in archive.Entries)
-                    {
-                        if (e.IsDirectory) continue;
-                        if (!e.Key.StartsWith(folder)) continue;
+                    if (!file.StartsWith(folder)) continue;
 
-                        var innerKey = e.Key.Substring(folder.Length + 1);
+                    var innerKey = file.Substring(folder.Length + 1);
+                    if (innerKey.Contains(Separator)) continue;
 
-                        if (innerKey.Contains("/") || innerKey.Contains('\\')) continue;
-
-                        var lower = innerKey.ToLower();
-
-                        if (!lower.EndsWith(".jpg") && !lower.EndsWith(".png") && !lower.EndsWith(".jpeg")) continue;
-                        output.AddLast(e.Key);
-                    }
+                    if (FilterImageFileType(innerKey)) output.AddLast(file);
                 }
 
                 return output.ToArray();
             });
         }
 
+        protected virtual string[] CreateFileList()
+        {
+            List<string> files = new List<string>();
+            lock (Archive)
+            {
+                foreach (var e in Archive.Entries)
+                {
+                    if (e.IsDirectory) continue;
+                    files.Add(e.Key);
+                }
+            }
+            return files.ToArray();
+        }
+
         public override Task<Stream> OpenEntryAsync(string entry)
         {
-            return Task.Run<Stream>(() => {
+            return Task.Run<Stream>(() =>
+            {
                 var outputStream = new MemoryStream();
-                if (archive == null) return outputStream;
-                lock (archive)
+                if (Archive == null) return outputStream;
+                lock (Archive)
                 {
-                    using (var entryStream = archive.Entries.First(e => e.Key == entry).OpenEntryStream())
+                    using (var entryStream = Archive.Entries.First(e => e.Key == entry).OpenEntryStream())
                     {
                         entryStream.CopyTo(outputStream);
                         outputStream.Seek(0, SeekOrigin.Begin);
@@ -122,10 +152,10 @@ namespace ZipPicViewUWP
         public override void Dispose()
         {
             base.Dispose();
-            lock (archive)
+            lock (Archive)
             {
-                archive.Dispose();
-                archive = null;
+                Archive.Dispose();
+                Archive = null;
             }
             lock (stream)
             {
@@ -138,7 +168,6 @@ namespace ZipPicViewUWP
         {
             var stream = await OpenEntryAsync(entry);
             return stream.AsRandomAccessStream();
-
         }
     }
 }

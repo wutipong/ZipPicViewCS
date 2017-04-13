@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Search;
@@ -10,9 +9,9 @@ using Windows.Storage.Streams;
 
 namespace ZipPicViewUWP
 {
-    class FileSystemMediaProvider : AbstractMediaProvider
+    internal class FileSystemMediaProvider : AbstractMediaProvider
     {
-        StorageFolder folder;
+        private StorageFolder folder;
 
         public FileSystemMediaProvider(StorageFolder folder)
         {
@@ -26,17 +25,17 @@ namespace ZipPicViewUWP
 
         public override async Task<string[]> GetChildEntries(string entry)
         {
-            var subFolder = entry == @"\" ? folder : await folder.GetFolderAsync(entry);
+            var subFolder = entry == Root ? folder : await folder.GetFolderAsync(entry);
 
             var files = await subFolder.GetFilesAsync();
 
             var output = new List<string>(files.Count);
 
             var startIndex = subFolder.Path.Length;
-            
+
             foreach (var path in
                 from f in files
-                where f.Name.ToLower().EndsWith(".jpg") || f.Name.ToLower().EndsWith(".jpeg") || f.Name.ToLower().EndsWith(".png")
+                where FilterImageFileType(f.Name)
                 select f.Path)
             {
                 output.Add(path.Substring(folder.Path.Length + 1));
@@ -53,7 +52,8 @@ namespace ZipPicViewUWP
 
             var output = new List<string>(subFolders.Count);
 
-            output.Add(@"\");
+            output.Add(Root);
+
             var startIndex = folder.Path.Length + 1;
             foreach (var folder in subFolders)
             {

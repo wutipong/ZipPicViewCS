@@ -2,65 +2,56 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ZipPicViewUWP
 {
     internal class SevenZipMediaProvider : ArchiveMediaProvider
     {
-        private readonly List<string> keys = new List<string>();
-        private readonly HashSet<string> folders = new HashSet<string>();
-
-        private const string pathSeparator = "/";
-        private const string root = pathSeparator;
-
         public SevenZipMediaProvider(Stream stream, IArchive archive) : base(stream, archive)
         {
-            foreach (var entry in archive.Entries)
-            {
-                keys.Add(entry.Key);
-                folders.Add(entry.Key.Substring(0, entry.Key.LastIndexOf(pathSeparator)));
-                folders.Add(root);
-            }
+            Separator = '/';
         }
 
-        public override async Task<string[]> GetFolderEntries()
+        protected override string[] CreateFileList()
         {
-            return await Task.Run(() => folders.ToArray());
-        }
+            var output = new LinkedList<string>();
 
-        public override Task<string[]> GetChildEntries(string entry)
-        {
-            return Task.Run(() =>
+            if (Archive != null)
             {
-                LinkedList<string> output = new LinkedList<string>();
-
-                if (Archive == null) return output.ToArray();
-                foreach (var key in keys)
+                lock (Archive)
                 {
-                    if(FilterKey(key, entry))
-                        output.AddLast(key);
+                    foreach (var entry in Archive.Entries)
+                    {
+                        output.AddLast(entry.Key);
+                    }
                 }
+            }
 
-                return output.ToArray();
-            });
+            return output.ToArray();
         }
 
-        protected bool FilterKey(string key, string folder)
+        protected override string[] CreateFolderList()
         {
-            folder = folder == root ? "" : folder;
+            var folders = new HashSet<string>();
+            folders.Add(Root);
 
-            if (!key.StartsWith(folder)) return false;
+            foreach (var entry in FileList)
+            {
+                var parts = entry.Split(Separator);
 
-            var innerKey = key.Substring(folder.Length + 1);
+                if (parts.Length == 1) continue;
 
-            if (innerKey.Contains(pathSeparator)) return false;
+                string path = parts[0];
+                folders.Add(path);
 
-            var lower = innerKey.ToLower();
+                for (int i = 1; i < parts.Length - 1; i++)
+                {
+                    path += Separator + parts[i];
+                    folders.Add(path);
+                }
+            }
 
-            if (!lower.EndsWith(".jpg") && !lower.EndsWith(".png") && !lower.EndsWith(".jpeg")) return false;
-
-            return true;
+            return folders.ToArray();
         }
     }
 }
