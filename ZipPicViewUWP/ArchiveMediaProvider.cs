@@ -12,6 +12,10 @@ namespace ZipPicViewUWP
     class ArchiveMediaProvider : AbstractMediaProvider
     {
         IArchive archive;
+        protected IArchive Archive
+        {
+            get { return archive; }
+        }
         Stream stream;
 
         public static bool IsArchiveEncrypted(Stream stream)
@@ -25,15 +29,25 @@ namespace ZipPicViewUWP
             return false;
         }
 
-        public ArchiveMediaProvider(Stream stream, string password)
-        {
-            this.stream = stream;
+        public static ArchiveMediaProvider Create(Stream stream, string password)
+        {            
             var options = new ReaderOptions()
             {
                 Password = password
             };
-            archive = ArchiveFactory.Open(stream, options);
+            var archive = ArchiveFactory.Open(stream, options);
+
+            if (archive.Type == SharpCompress.Common.ArchiveType.SevenZip)
+                return new SevenZipMediaProvider(stream, archive);
+            return new ArchiveMediaProvider(stream, archive);
         }
+
+        public ArchiveMediaProvider(Stream stream, IArchive archive)
+        {
+            this.archive = archive;
+            this.stream = stream;
+        }
+
         public override async Task<string[]> GetFolderEntries()
         {
             return await Task.Run<string[]>(() =>

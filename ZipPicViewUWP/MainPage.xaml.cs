@@ -149,7 +149,7 @@ namespace ZipPicViewUWP
             AbstractMediaProvider provider = null;
             try
             {
-                provider = new ArchiveMediaProvider(stream, password);
+                provider = ArchiveMediaProvider.Create(stream, password);
             }
             catch
             {
