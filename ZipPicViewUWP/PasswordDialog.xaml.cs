@@ -22,6 +22,7 @@ namespace ZipPicViewUWP
         public PasswordDialog()
         {
             this.InitializeComponent();
+
         }
 
         public string Password
