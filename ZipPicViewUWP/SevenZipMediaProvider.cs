@@ -33,14 +33,12 @@ namespace ZipPicViewUWP
         {
             return Task.Run(() =>
             {
-                var entryLength = entry.Length;
                 LinkedList<string> output = new LinkedList<string>();
-                var folder = entry == root ? "" : entry;
 
                 if (Archive == null) return output.ToArray();
                 foreach (var key in keys)
                 {
-                    if(FilterKey(key, folder))
+                    if(FilterKey(key, entry))
                         output.AddLast(key);
                 }
 
@@ -50,6 +48,8 @@ namespace ZipPicViewUWP
 
         protected bool FilterKey(string key, string folder)
         {
+            folder = folder == root ? "" : folder;
+
             if (!key.StartsWith(folder)) return false;
 
             var innerKey = key.Substring(folder.Length + 1);

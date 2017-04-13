@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -67,15 +68,16 @@ namespace ZipPicViewUWP
         {
             Array.Sort(folderList, (string s1, string s2) =>
             {
-                if (s1 == "\\") return -1;
-                else if (s2 == "\\") return 1;
+                if (s1 == "\\" ) return -1;
+                else if (s2 == "\\" ) return 1;
                 else return s1.CompareTo(s2);
             });
 
             foreach (var f in folderList)
             {
                 var folder = f;
-                if(folder != "\\")
+                if (folder == "/") folder = "\\";
+                if (folder != "\\")
                 {
                     char separator = folder.Contains("\\") ? '\\' : '/';
                     int count = folder.Count(c => c == separator);
@@ -113,7 +115,7 @@ namespace ZipPicViewUWP
         private async Task<MediaElement> LoadSound(string filename)
         {
             var sound = new MediaElement();
-            var soundFile = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(String.Format(@"Assets\{0}", filename));
+            var soundFile = await Package.Current.InstalledLocation.GetFileAsync(String.Format(@"Assets\{0}", filename));
             sound.AutoPlay = false;
             sound.SetSource(await soundFile.OpenReadAsync(), "");
             sound.Stop();
@@ -123,7 +125,7 @@ namespace ZipPicViewUWP
 
         private async void openFileButton_Click(object sender, RoutedEventArgs e)
         {
-            this.IsEnabled = false;
+            IsEnabled = false;
             var picker = new FileOpenPicker();
             picker.FileTypeFilter.Add(".zip");
             picker.FileTypeFilter.Add(".rar");
@@ -132,7 +134,7 @@ namespace ZipPicViewUWP
             var selected = await picker.PickSingleFileAsync();
             if (selected == null)
             {
-                this.IsEnabled = true;
+                IsEnabled = true;
                 return;
             }
             
@@ -156,7 +158,7 @@ namespace ZipPicViewUWP
                 var dialog = new MessageDialog(String.Format("Cannot open file: {0}.", selected.Name), "Error");
                 await dialog.ShowAsync();
                 stream.Dispose();
-                this.IsEnabled = true;
+                IsEnabled = true;
                 return;
             }
             filenameTextBlock.Text = selected.Name;
@@ -165,13 +167,13 @@ namespace ZipPicViewUWP
 
         private async void openFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            this.IsEnabled = false;
+            IsEnabled = false;
             var picker = new FolderPicker();
             picker.FileTypeFilter.Add("*");
             var selected = await picker.PickSingleFolderAsync();
             if (selected == null)
             {
-                this.IsEnabled = true;
+                IsEnabled = true;
                 return;
             }
             filenameTextBlock.Text = selected.Name;
@@ -198,7 +200,6 @@ namespace ZipPicViewUWP
             thumbnailTask = CreateThumbnails(selected, provider);
 
             var pathToken = selected.Split(new char[] { '/', '\\' });
-
             selectFolderTextBlock.Text = ": " + string.Join("\\", pathToken);
         }
 
@@ -317,7 +318,7 @@ namespace ZipPicViewUWP
 
         private async Task SetCurrentFile(string file, bool withDelay = true)
         {
-            var delayTask = Task.Delay(withDelay ? 1000: 0);
+            var delayTask = Task.Delay(withDelay ? 250: 0);
 
             uint width = (uint)canvas.RenderSize.Width;
             uint height = (uint)canvas.RenderSize.Height;
