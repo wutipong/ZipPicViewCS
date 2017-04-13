@@ -32,8 +32,7 @@ namespace ZipPicViewUWP
 
         protected override string[] CreateFolderList()
         {
-            var folders = new HashSet<string>();
-            folders.Add(Root);
+            var folders = new HashSet<string>() {Root};
 
             foreach (var entry in FileList)
             {

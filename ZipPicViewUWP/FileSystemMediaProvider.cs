@@ -45,14 +45,14 @@ namespace ZipPicViewUWP
 
         public override async Task<string[]> GetFolderEntries()
         {
-            var options = new QueryOptions(CommonFolderQuery.DefaultQuery);
-            options.FolderDepth = FolderDepth.Deep;
+            var options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+            {
+                FolderDepth = FolderDepth.Deep
+            };
 
             var subFolders = await folder.CreateFolderQueryWithOptions(options).GetFoldersAsync();
 
-            var output = new List<string>(subFolders.Count);
-
-            output.Add(Root);
+            var output = new List<string>(subFolders.Count) { Root };
 
             var startIndex = folder.Path.Length + 1;
             foreach (var folder in subFolders)
