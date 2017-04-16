@@ -59,9 +59,13 @@ namespace ZipPicViewUWP
             nextButton.Click += NextButton_Click;
 
             durationList.Items.Clear();
-            foreach(var duration in advanceDurations)
+            var oneMinute = TimeSpan.FromMinutes(1.00);
+            foreach (var duration in advanceDurations)
             {
-                var durationStr = String.Format("{0}:{1:00} Minutes.", (int)duration.TotalMinutes, duration.Seconds);
+                var durationStr = duration < oneMinute ?
+                    String.Format("{0} Second(s)", duration.Seconds) :
+                    String.Format("{0}:{1:00} Minute(s)", (int)duration.TotalMinutes, duration.Seconds);
+
                 durationList.Items.Add(durationStr);
             }
 
