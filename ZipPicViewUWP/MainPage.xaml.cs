@@ -331,14 +331,13 @@ namespace ZipPicViewUWP
                 return bitmap;
             });
             
-
             await delayTask;
             loadingBorder.Visibility = Visibility.Visible;
+            imageControl.Filename = ExtractFilename(file);
 
             var source = new SoftwareBitmapSource();
             await source.SetBitmapAsync(await createBitmapTask);
             image.Source = source;
-            imageControl.Filename = ExtractFilename(file);
 
             loadingBorder.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Visible;
