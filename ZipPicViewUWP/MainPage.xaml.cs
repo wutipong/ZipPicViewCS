@@ -26,6 +26,29 @@ namespace ZipPicViewUWP
         private int currentFileIndex = 0;
         private Task thumbnailTask = null;
         private MediaElement clickSound;
+        private string filename;
+
+        private string FileName
+        {
+            get { return filename; }
+            set
+            {
+                filename = value;
+                filenameTextBlock.Text = filename.Ellipses(50);
+            }
+        }
+
+        private string selectedFolder;
+
+        private string SelectedFolder
+        {
+            get { return selectedFolder; }
+            set
+            {
+                selectedFolder = value;
+                selectFolderTextBlock.Text = selectedFolder.Ellipses(50); 
+            }
+        }
 
         public async void SetMediaProvider(AbstractMediaProvider provider)
         {
@@ -45,7 +68,7 @@ namespace ZipPicViewUWP
             this.IsEnabled = true;
         }
 
-        struct FolderListItem
+        private struct FolderListItem
         {
             private readonly string display;
             private readonly string value;
@@ -68,8 +91,8 @@ namespace ZipPicViewUWP
         {
             Array.Sort(folderList, (string s1, string s2) =>
             {
-                if (s1 == "\\" ) return -1;
-                else if (s2 == "\\" ) return 1;
+                if (s1 == "\\") return -1;
+                else if (s2 == "\\") return 1;
                 else return s1.CompareTo(s2);
             });
 
@@ -82,7 +105,7 @@ namespace ZipPicViewUWP
                     char separator = folder.Contains("\\") ? '\\' : '/';
                     int count = folder.Count(c => c == separator);
 
-                    if(folder.EndsWith("" + separator))
+                    if (folder.EndsWith("" + separator))
                         folder = folder.Substring(0, folder.Length - 1);
 
                     folder = folder.Substring(folder.LastIndexOf(separator) + 1);
@@ -119,7 +142,7 @@ namespace ZipPicViewUWP
             sound.AutoPlay = false;
             sound.SetSource(await soundFile.OpenReadAsync(), "");
             sound.Stop();
-            
+
             return sound;
         }
 
@@ -137,7 +160,7 @@ namespace ZipPicViewUWP
                 IsEnabled = true;
                 return;
             }
-            
+
             var stream = await selected.OpenStreamForReadAsync();
             string password = null;
             if (ArchiveMediaProvider.IsArchiveEncrypted(stream))
@@ -161,7 +184,7 @@ namespace ZipPicViewUWP
                 IsEnabled = true;
                 return;
             }
-            filenameTextBlock.Text = selected.Name;
+            FileName = selected.Name;
             SetMediaProvider(provider);
         }
 
@@ -176,7 +199,7 @@ namespace ZipPicViewUWP
                 IsEnabled = true;
                 return;
             }
-            filenameTextBlock.Text = selected.Name;
+            FileName = selected.Name;
 
             SetMediaProvider(new FileSystemMediaProvider(selected));
         }
@@ -189,7 +212,7 @@ namespace ZipPicViewUWP
         private async void subFolderList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count == 0) return;
-            var selected = ((FolderListItem) e.AddedItems.First()).Value;
+            var selected = ((FolderListItem)e.AddedItems.First()).Value;
             var provider = this.provider;
 
             if (cancellationTokenSource != null)
@@ -200,7 +223,7 @@ namespace ZipPicViewUWP
             thumbnailTask = CreateThumbnails(selected, provider);
 
             var pathToken = selected.Split(new char[] { '/', '\\' });
-            selectFolderTextBlock.Text = ": " + string.Join("\\", pathToken);
+            SelectedFolder = ": " + string.Join("\\", pathToken);
         }
 
         private async Task CreateThumbnails(string selected, AbstractMediaProvider provider)
@@ -210,13 +233,13 @@ namespace ZipPicViewUWP
 
             thumbnailGrid.Items.Clear();
             fileList = await provider.GetChildEntries(selected);
-            Array.Sort(fileList, (string s1, string s2)=>
+            Array.Sort(fileList, (string s1, string s2) =>
             {
                 int i1, i2;
                 string s1WithoutExtension = s1.Substring(0, s1.LastIndexOf("."));
                 string s2WithoutExtension = s2.Substring(0, s2.LastIndexOf("."));
 
-                if(Int32.TryParse(s1WithoutExtension, out i1) && Int32.TryParse(s2WithoutExtension, out i2))
+                if (Int32.TryParse(s1WithoutExtension, out i1) && Int32.TryParse(s2WithoutExtension, out i2))
                 {
                     return i1.CompareTo(i2);
                 }
@@ -236,9 +259,7 @@ namespace ZipPicViewUWP
                     var thumbnail = new Thumbnail();
                     thumbnail.Image.Source = source;
                     thumbnail.Click += Thumbnail_Click;
-
-                    thumbnail.Label.Text = ExtractFilename(file);
-
+                    thumbnail.Label.Text = file.ExtractFilename().Ellipses(25);
                     thumbnail.UserData = file;
 
                     token.ThrowIfCancellationRequested();
@@ -252,21 +273,21 @@ namespace ZipPicViewUWP
             finally { cancellationTokenSource = null; }
         }
 
-        private enum ImageOrientation { Portrait, Landscape};
+        private enum ImageOrientation { Portrait, Landscape };
 
         private static async Task<SoftwareBitmap> CreateResizedBitmap(IRandomAccessStream stream, uint expectedWidth, uint expectedHeight)
         {
-            var expectedOrientation = expectedWidth > expectedHeight? ImageOrientation.Landscape: ImageOrientation.Portrait;
-            
+            var expectedOrientation = expectedWidth > expectedHeight ? ImageOrientation.Landscape : ImageOrientation.Portrait;
+
             var decoder = await BitmapDecoder.CreateAsync(stream);
-            
+
             var width = decoder.PixelWidth;
             var height = decoder.PixelHeight;
-            var imageOrientation = width > height? ImageOrientation.Landscape : ImageOrientation.Portrait;
+            var imageOrientation = width > height ? ImageOrientation.Landscape : ImageOrientation.Portrait;
 
-            if(expectedOrientation != imageOrientation)
+            if (expectedOrientation != imageOrientation)
             {
-                if(imageOrientation == ImageOrientation.Landscape)
+                if (imageOrientation == ImageOrientation.Landscape)
                 {
                     height = (expectedWidth * height) / width;
                     width = expectedWidth;
@@ -277,7 +298,6 @@ namespace ZipPicViewUWP
                     height = expectedHeight;
                 }
             }
-
             else
             {
                 if (imageOrientation == ImageOrientation.Landscape)
@@ -291,7 +311,7 @@ namespace ZipPicViewUWP
                     width = expectedWidth;
                 }
             }
-           
+
             var transform = new BitmapTransform();
             transform.InterpolationMode = BitmapInterpolationMode.Fant;
             transform.ScaledWidth = width;
@@ -318,7 +338,7 @@ namespace ZipPicViewUWP
 
         private async Task SetCurrentFile(string file, bool withDelay = true)
         {
-            var delayTask = Task.Delay(withDelay ? 250: 0);
+            var delayTask = Task.Delay(withDelay ? 250 : 0);
 
             uint width = (uint)canvas.RenderSize.Width;
             uint height = (uint)canvas.RenderSize.Height;
@@ -330,10 +350,10 @@ namespace ZipPicViewUWP
 
                 return bitmap;
             });
-            
+
             await delayTask;
             loadingBorder.Visibility = Visibility.Visible;
-            imageControl.Filename = ExtractFilename(file);
+            imageControl.Filename = file.ExtractFilename();
 
             var source = new SoftwareBitmapSource();
             await source.SetBitmapAsync(await createBitmapTask);
@@ -341,12 +361,6 @@ namespace ZipPicViewUWP
 
             loadingBorder.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Visible;
-        }
-
-        private static string ExtractFilename(string file)
-        {
-            int index = file.LastIndexOfAny(new char[] { '\\', '/' });
-            return index >= 0 ? file.Substring(index + 1) : file;
         }
 
         private void canvas_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -384,10 +398,10 @@ namespace ZipPicViewUWP
         {
             var filename = fileList[currentFileIndex];
             var filenameWithoutPath = filename;
-           
+
             var picker = new FileSavePicker();
-            
-            picker.SuggestedFileName = ExtractFilename(filename);
+
+            picker.SuggestedFileName = filename.ExtractFilename();
             picker.FileTypeChoices.Add("All", new List<string>() { "." });
             var file = await picker.PickSaveFileAsync();
             if (file == null) return;
@@ -403,12 +417,12 @@ namespace ZipPicViewUWP
         private async Task AdvanceImage(int step)
         {
             currentFileIndex += step;
-            while(currentFileIndex < 0 || currentFileIndex >= fileList.Length)
+            while (currentFileIndex < 0 || currentFileIndex >= fileList.Length)
             {
                 if (currentFileIndex < 0) currentFileIndex += fileList.Length;
                 else if (currentFileIndex >= fileList.Length) currentFileIndex -= fileList.Length;
             }
-            
+
             imageControl.ResetCounter();
 
             await SetCurrentFile(fileList[currentFileIndex]);
@@ -426,7 +440,6 @@ namespace ZipPicViewUWP
             {
                 await AdvanceImage(1);
             }
-           
         }
 
         private async void page_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)

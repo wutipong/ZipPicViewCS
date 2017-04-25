@@ -89,10 +89,15 @@ namespace ZipPicViewUWP
             }
         }
 
-        public String Filename
+        private string filename;
+        public string Filename
         {
-            get { return filenameTextBlock.Text; }
-            set { filenameTextBlock.Text = value; }
+            get { return filename; }
+            set
+            {
+                filename = value;
+                filenameTextBlock.Text = filename.Ellipses(70);
+            }
         }
 
         public event RoutedEventHandler NextButtonClick
