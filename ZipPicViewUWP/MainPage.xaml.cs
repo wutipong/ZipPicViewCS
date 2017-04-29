@@ -154,6 +154,7 @@ namespace ZipPicViewUWP
             picker.FileTypeFilter.Add(".rar");
             picker.FileTypeFilter.Add(".7z");
             picker.FileTypeFilter.Add("*");
+
             var selected = await picker.PickSingleFileAsync();
             if (selected == null)
             {
@@ -161,31 +162,33 @@ namespace ZipPicViewUWP
                 return;
             }
 
-            var stream = await selected.OpenStreamForReadAsync();
-            string password = null;
-            if (ArchiveMediaProvider.IsArchiveEncrypted(stream))
-            {
-                var dialog = new PasswordDialog();
-                var result = await dialog.ShowAsync();
-                if (result != ContentDialogResult.Primary)
-                    return;
-                password = dialog.Password;
-            }
-            AbstractMediaProvider provider = null;
+            Stream stream = null;
             try
             {
-                provider = ArchiveMediaProvider.Create(stream, password);
+                stream = await selected.OpenStreamForReadAsync();
+                string password = null;
+                if (ArchiveMediaProvider.IsArchiveEncrypted(stream))
+                {
+                    var dialog = new PasswordDialog();
+                    var result = await dialog.ShowAsync();
+                    if (result != ContentDialogResult.Primary)
+                        return;
+                    password = dialog.Password;
+                }
+                if (password != null) ArchiveMediaProvider.TestPassword(stream, password);
+                var provider = ArchiveMediaProvider.Create(stream, password);
+
+                FileName = selected.Name;
+                SetMediaProvider(provider);
             }
-            catch
+            catch (Exception err)
             {
-                var dialog = new MessageDialog(String.Format("Cannot open file: {0}.", selected.Name), "Error");
+                var dialog = new MessageDialog(String.Format("Cannot open file: {0} : {1}.", selected.Name, err.Message), "Error");
                 await dialog.ShowAsync();
-                stream.Dispose();
+                stream?.Dispose();
                 IsEnabled = true;
                 return;
             }
-            FileName = selected.Name;
-            SetMediaProvider(provider);
         }
 
         private async void openFolderButton_Click(object sender, RoutedEventArgs e)

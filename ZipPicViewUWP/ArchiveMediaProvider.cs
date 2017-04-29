@@ -46,6 +46,27 @@ namespace ZipPicViewUWP
             return false;
         }
 
+        public static void TestPassword(Stream stream, string password)
+        {
+            var options = new ReaderOptions
+            {
+                Password = password
+            };
+
+            var archive = ArchiveFactory.Open(stream, options);
+            var entry = archive.Entries.First(e => !e.IsDirectory);
+
+            if (entry != null)
+            {
+                using (var entryStream = entry.OpenEntryStream())
+                {
+
+                }
+                
+            }
+            stream.Seek(0, SeekOrigin.Begin);
+        }
+
         public static ArchiveMediaProvider Create(Stream stream, string password)
         {
             var options = new ReaderOptions()
