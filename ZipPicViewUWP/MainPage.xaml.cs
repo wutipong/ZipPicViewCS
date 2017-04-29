@@ -380,6 +380,8 @@ namespace ZipPicViewUWP
         {
             imageBorder.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
+            page.TopAppBar.Visibility = Visibility.Visible;
+
             thumbnailGrid.IsEnabled = true;
             imageControl.AutoEnabled = false;
         }
@@ -487,6 +489,7 @@ namespace ZipPicViewUWP
         private void image_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             imageControl.Visibility = imageControl.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+            page.TopAppBar.Visibility = page.TopAppBar.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }
