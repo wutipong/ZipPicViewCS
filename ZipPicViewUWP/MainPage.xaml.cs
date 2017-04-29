@@ -163,20 +163,23 @@ namespace ZipPicViewUWP
             }
 
             Stream stream = null;
+            bool isEncrypted;
             try
             {
                 stream = await selected.OpenStreamForReadAsync();
-                string password = null;
-                if (ArchiveMediaProvider.IsArchiveEncrypted(stream))
+                
+                var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out isEncrypted);
+                if (isEncrypted)
                 {
                     var dialog = new PasswordDialog();
                     var result = await dialog.ShowAsync();
                     if (result != ContentDialogResult.Primary)
                         return;
-                    password = dialog.Password;
+                    var password = dialog.Password;
+                    archive = ArchiveMediaProvider.TryOpenArchive(stream, password, out isEncrypted);
                 }
-                if (password != null) ArchiveMediaProvider.TestPassword(stream, password);
-                var provider = ArchiveMediaProvider.Create(stream, password);
+                
+                var provider = ArchiveMediaProvider.Create(stream, archive);
 
                 FileName = selected.Name;
                 SetMediaProvider(provider);

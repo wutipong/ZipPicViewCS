@@ -35,46 +35,34 @@ namespace ZipPicViewUWP
 
         private Stream stream;
 
-        public static bool IsArchiveEncrypted(Stream stream)
+        public static IArchive TryOpenArchive(Stream stream, string password, out bool isEncrypted)
         {
-            var archive = ArchiveFactory.Open(stream);
-            var entry = archive.Entries.First(e => !e.IsDirectory);
-
-            if (entry != null && entry.IsEncrypted)
-                return true;
-
-            return false;
-        }
-
-        public static void TestPassword(Stream stream, string password)
-        {
+            isEncrypted = false;
             var options = new ReaderOptions
             {
                 Password = password
             };
 
             var archive = ArchiveFactory.Open(stream, options);
+
             var entry = archive.Entries.First(e => !e.IsDirectory);
 
             if (entry != null)
             {
+                isEncrypted = entry.IsEncrypted;
+                if (isEncrypted && password == null) return null;
+
+                // Try open a stream to see if it can be opened
                 using (var entryStream = entry.OpenEntryStream())
                 {
-
                 }
-                
             }
-            stream.Seek(0, SeekOrigin.Begin);
+
+            return archive;
         }
 
-        public static ArchiveMediaProvider Create(Stream stream, string password)
+        public static ArchiveMediaProvider Create(Stream stream, IArchive archive)
         {
-            var options = new ReaderOptions()
-            {
-                Password = password
-            };
-            var archive = ArchiveFactory.Open(stream, options);
-
             if (archive.Type == SharpCompress.Common.ArchiveType.SevenZip)
                 return new SevenZipMediaProvider(stream, archive);
             return new ArchiveMediaProvider(stream, archive);
