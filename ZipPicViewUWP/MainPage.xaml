@@ -41,6 +41,15 @@
             <AppBarButton x:Name="subFolderButton" Icon="List" Label="Sub Folder List" Click="subFolderButton_Click"/>
         </CommandBar>
     </Page.TopAppBar>
-
+    <Page.BottomAppBar>
+        <CommandBar>
+            <CommandBar.Content>
+                <StackPanel x:Name="thumbProgressPanel" Margin="10,5" Orientation="Horizontal" Visibility="Collapsed">
+                    <TextBlock Text="Loading Thumbnail ..." Margin="5,0" />
+                    <ProgressBar x:Name="thumbProgress" Height="15" Width="100"/>
+                </StackPanel>
+            </CommandBar.Content>
+        </CommandBar>
+    </Page.BottomAppBar>
     
 </Page>

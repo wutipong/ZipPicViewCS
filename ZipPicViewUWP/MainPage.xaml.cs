@@ -46,7 +46,7 @@ namespace ZipPicViewUWP
             set
             {
                 selectedFolder = value;
-                selectFolderTextBlock.Text = selectedFolder.Ellipses(50); 
+                selectFolderTextBlock.Text = selectedFolder.Ellipses(50);
             }
         }
 
@@ -246,10 +246,14 @@ namespace ZipPicViewUWP
                 return s1.CompareTo(s2);
             });
 
+            thumbProgressPanel.Visibility = Visibility.Visible;
             try
             {
-                foreach (var file in fileList)
+                thumbProgress.Maximum = fileList.Length;
+                for (int i = 0; i < fileList.Length; i++)
                 {
+                    thumbProgress.Value = i;
+                    var file = fileList[i];
                     var thumbnail = new Thumbnail();
                     thumbnail.Click += Thumbnail_Click;
                     thumbnail.Label.Text = file.ExtractFilename().Ellipses(25);
@@ -269,9 +273,15 @@ namespace ZipPicViewUWP
                     await setSourceTask;
                     await Task.Delay(1);
                 }
+
+                thumbProgress.Value = fileList.Length;
             }
             catch { }
-            finally { cancellationTokenSource = null; }
+            finally
+            {
+                thumbProgressPanel.Visibility = Visibility.Collapsed;
+                cancellationTokenSource = null;
+            }
         }
 
         private enum ImageOrientation { Portrait, Landscape };
@@ -381,7 +391,6 @@ namespace ZipPicViewUWP
         {
             imageBorder.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
-            page.TopAppBar.Visibility = Visibility.Visible;
 
             thumbnailGrid.IsEnabled = true;
             imageControl.AutoEnabled = false;
@@ -491,6 +500,7 @@ namespace ZipPicViewUWP
         {
             imageControl.Visibility = imageControl.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             page.TopAppBar.Visibility = page.TopAppBar.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+            page.BottomAppBar.Visibility = page.BottomAppBar.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }
