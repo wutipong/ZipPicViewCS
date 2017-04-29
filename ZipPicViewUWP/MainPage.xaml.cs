@@ -250,20 +250,21 @@ namespace ZipPicViewUWP
             {
                 foreach (var file in fileList)
                 {
+                    var thumbnail = new Thumbnail();
+                    thumbnail.Click += Thumbnail_Click;
+                    thumbnail.Label.Text = file.ExtractFilename().Ellipses(25);
+                    thumbnail.UserData = file;
+                    thumbnailGrid.Items.Add(thumbnail);
+
                     var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
 
                     SoftwareBitmap bitmap = await CreateResizedBitmap(stream, 200, 200);
                     var source = new SoftwareBitmapSource();
                     var setSourceTask = source.SetBitmapAsync(bitmap);
 
-                    var thumbnail = new Thumbnail();
-                    thumbnail.Image.Source = source;
-                    thumbnail.Click += Thumbnail_Click;
-                    thumbnail.Label.Text = file.ExtractFilename().Ellipses(25);
-                    thumbnail.UserData = file;
-
                     token.ThrowIfCancellationRequested();
-                    thumbnailGrid.Items.Add(thumbnail);
+                    thumbnail.Image.Source = source;
+                    thumbnail.ProgressRing.Visibility = Visibility.Collapsed;
 
                     await setSourceTask;
                     await Task.Delay(1);

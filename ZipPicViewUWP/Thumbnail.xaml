@@ -9,6 +9,7 @@
     <Button x:Name="button" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <RelativePanel Margin="-100,-115">
             <Image x:Name="image" Margin="0,0,-200,-182" HorizontalAlignment="Center" VerticalAlignment="Center" Height="182" Width="200"/>
+            <ProgressRing x:Name="loading" Margin="0,0,-200,-182" HorizontalAlignment="Center" VerticalAlignment="Center" IsActive="True" Width="100" Height="100"/>
             <TextBlock x:Name="label" VerticalAlignment="Bottom" Margin="0,0,-200,-218" Height="27" HorizontalAlignment="Center" Grid.Row="1" Width="200"/>
         </RelativePanel>
     </Button>

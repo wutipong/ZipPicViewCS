@@ -1,1 +1,1 @@
-C:\Users\mr_ta\Source\Repos\ZipPicViewCS\ZipPicViewUWP\bin\ARM\Release\Upload\ZipPicViewUWP_1.1.16.0\ZipPicViewUWP_1.1.16.0_x86_x64_arm.appxbundle
+C:\Users\mr_ta\Source\Repos\ZipPicViewCS\ZipPicViewUWP\AppPackages\ZipPicViewUWP_1.1.16.0\ZipPicViewUWP_1.1.16.0_x86_x64_arm.appxbundle

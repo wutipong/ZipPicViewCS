@@ -46,6 +46,11 @@ namespace ZipPicViewUWP
             }
         }
 
+        public ProgressRing ProgressRing
+        {
+            get { return loading; }
+        }
+
         public event RoutedEventHandler Click;
 
         private string userData;
