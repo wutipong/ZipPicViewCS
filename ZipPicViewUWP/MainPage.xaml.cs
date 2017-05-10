@@ -94,7 +94,7 @@ namespace ZipPicViewUWP
 
                     var prefix = "";
                     for (int i = 0; i < count; i++) prefix += "  ";
-                    folder = prefix + "\u25CF " + folder;
+                    folder = prefix + folder;
                 }
 
                 var children = await provider.GetChildEntries(f);
