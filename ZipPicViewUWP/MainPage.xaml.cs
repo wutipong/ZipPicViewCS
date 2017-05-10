@@ -13,6 +13,7 @@ using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace ZipPicViewUWP
@@ -34,7 +35,7 @@ namespace ZipPicViewUWP
             set
             {
                 filename = value;
-                filenameTextBlock.Text = filename.Ellipses(50);
+                filenameTextBlock.Text = filename.Ellipses(100);
             }
         }
 
@@ -57,7 +58,7 @@ namespace ZipPicViewUWP
             subFolderListCtrl.Items.Clear();
             folderList = await provider.GetFolderEntries();
 
-            RebuildSubFolderList();
+            await RebuildSubFolderList();
 
             subFolderListCtrl.SelectedIndex = 0;
             imageControl.Visibility = Visibility.Collapsed;
@@ -68,26 +69,7 @@ namespace ZipPicViewUWP
             this.IsEnabled = true;
         }
 
-        private struct FolderListItem
-        {
-            private readonly string display;
-            private readonly string value;
-
-            public string Value { get { return value; } }
-
-            public FolderListItem(string display, string value)
-            {
-                this.display = display;
-                this.value = value;
-            }
-
-            public override string ToString()
-            {
-                return display;
-            }
-        }
-
-        private void RebuildSubFolderList()
+        private async Task RebuildSubFolderList()
         {
             Array.Sort(folderList, (string s1, string s2) =>
             {
@@ -114,7 +96,18 @@ namespace ZipPicViewUWP
                     for (int i = 0; i < count; i++) prefix += "  ";
                     folder = prefix + "\u25CF " + folder;
                 }
-                var item = new FolderListItem(folder, f);
+
+                var children = await provider.GetChildEntries(f);
+
+                SoftwareBitmapSource source = null;
+                if(children.Length > 0)
+                {
+                    var bitmap = await CreateResizedBitmap(await provider.OpenEntryAsRandomAccessStreamAsync(children[0]), 40, 50);
+                    source = new SoftwareBitmapSource();
+                    await source.SetBitmapAsync(bitmap);
+                }
+
+                var item = new FolderListItem { Text = folder, Value = f, ImageSource = source};
                 subFolderListCtrl.Items.Add(item);
             }
         }
@@ -223,13 +216,13 @@ namespace ZipPicViewUWP
 
             if (cancellationTokenSource != null)
                 cancellationTokenSource.Cancel();
+
             if (thumbnailTask != null)
                 await thumbnailTask;
 
             thumbnailTask = CreateThumbnails(selected, provider);
 
             var pathToken = selected.Split(new char[] { '/', '\\' });
-            SelectedFolder = ": " + string.Join("\\", pathToken);
         }
 
         private async Task CreateThumbnails(string selected, AbstractMediaProvider provider)
@@ -252,13 +245,11 @@ namespace ZipPicViewUWP
                 return s1.CompareTo(s2);
             });
 
-            thumbProgressPanel.Visibility = Visibility.Visible;
             try
             {
-                thumbProgress.Maximum = fileList.Length;
+                thumbProgress.IsActive = true;
                 for (int i = 0; i < fileList.Length; i++)
                 {
-                    thumbProgress.Value = i;
                     var file = fileList[i];
                     var thumbnail = new Thumbnail();
                     thumbnail.Click += Thumbnail_Click;
@@ -280,12 +271,12 @@ namespace ZipPicViewUWP
                     await Task.Delay(1);
                 }
 
-                thumbProgress.Value = fileList.Length;
+                thumbProgress.IsActive = false;
             }
             catch { }
             finally
             {
-                thumbProgressPanel.Visibility = Visibility.Collapsed;
+                thumbProgress.IsActive = false;
                 cancellationTokenSource = null;
             }
         }
@@ -506,7 +497,6 @@ namespace ZipPicViewUWP
         {
             imageControl.Visibility = imageControl.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             page.TopAppBar.Visibility = page.TopAppBar.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
-            page.BottomAppBar.Visibility = page.BottomAppBar.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }

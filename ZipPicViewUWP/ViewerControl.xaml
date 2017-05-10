@@ -21,7 +21,7 @@
             <SymbolIcon Symbol="Previous" />
         </Button>
 
-        <RelativePanel HorizontalAlignment="Left" Grid.Row="1" MinHeight="50"  Margin="10" VerticalAlignment="Top" Background="{StaticResource controlBackground}">
+        <RelativePanel HorizontalAlignment="Center" Grid.Row="1" MinHeight="50"  Margin="10" VerticalAlignment="Bottom" Background="{StaticResource controlBackground}">
             <TextBlock x:Name="filenameTextBlock" Width="400" RelativePanel.AlignLeftWithPanel="True" VerticalAlignment="Center" Margin="10" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Text="&lt;&lt;filename&gt;&gt;" TextAlignment="Right" />
             <Button Name="saveBtn" RelativePanel.RightOf="filenameTextBlock" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True">
                 <SymbolIcon Symbol="Save" />

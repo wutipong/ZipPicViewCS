@@ -8,14 +8,16 @@
     mc:Ignorable="d" KeyUp="page_KeyUp" Loaded="page_Loaded" SizeChanged="page_SizeChanged">
     <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
-            <SplitView x:Name="splitView" Margin="0" PanePlacement="Right">
+            <SplitView x:Name="splitView" Margin="0" PanePlacement="Left" CompactPaneLength="50" OpenPaneLength="150">
                 <SplitView.Content>
                     <GridView x:Name="thumbnailGrid"/>
                 </SplitView.Content>
                 <SplitView.Pane>
-                    <ListView x:Name="subFolderListCtrl" SelectionChanged="subFolderList_SelectionChanged" >
-
-                    </ListView>
+                    <StackPanel Background="Gray">
+                        <Button x:Name="subFolderButton" Content="&#xE700;"
+                            Width="50" Height="50" Background="Transparent" Click="subFolderButton_Click"/>
+                        <ListView x:Name="subFolderListCtrl" SelectionChanged="subFolderList_SelectionChanged" />
+                    </StackPanel>
                 </SplitView.Pane>
             </SplitView>
         </Grid>
@@ -42,10 +44,6 @@
         <CommandBar>
             <AppBarButton x:Name="openFileButton" Icon="OpenFile" Label="Open File" Click="openFileButton_Click"/>
             <AppBarButton x:Name="openFolderButton" Icon="Folder" Label="Open Folder" Click="openFolderButton_Click"/>
-            <AppBarSeparator />
-            <AppBarButton x:Name="subFolderButton" Icon="List" Label="Sub Folder List" Click="subFolderButton_Click"/>
         </CommandBar>
     </Page.BottomAppBar>
-
-    
 </Page>

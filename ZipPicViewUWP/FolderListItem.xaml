@@ -1,0 +1,17 @@
+﻿<UserControl
+    x:Class="ZipPicViewUWP.FolderListItem"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ZipPicViewUWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="50"
+    d:DesignWidth="300">
+
+    <Grid>
+        <Image Name="image" Width="40" Height="50" HorizontalAlignment="Left" Visibility="Collapsed"/>
+        <SymbolIcon Name="folderIcon" Width="40" Height="50" HorizontalAlignment="Left" Symbol="Folder"/>
+        <TextBlock Name="name" Grid.Column="1" Margin="50,0,0,0" VerticalAlignment="Center">Folder</TextBlock>
+    </Grid>
+</UserControl>
