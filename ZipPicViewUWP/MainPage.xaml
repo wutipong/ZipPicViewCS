@@ -5,6 +5,8 @@
     xmlns:local="using:ZipPicViewUWP"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     mc:Ignorable="d" KeyUp="page_KeyUp" Loaded="page_Loaded" SizeChanged="page_SizeChanged">
     <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
@@ -32,12 +34,18 @@
                     </Grid>
                 </SplitView.Pane>
             </SplitView>
+            <interactivity:Interaction.Behaviors>
+                <behaviors:Blur x:Name="BlurBehavior" Duration="500" AutomaticallyStart="False"/>  
+            </interactivity:Interaction.Behaviors>
         </Grid>
-        <Border Background="#7F000000" x:Name="imageBorder" Visibility="Collapsed">
+        <Border x:Name="imageBorder" Visibility="Collapsed">
             <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted" Tapped="image_Tapped"/>
+            <interactivity:Interaction.Behaviors>
+                <behaviors:Blur x:Name="ImageTransitionBehavior" Duration="500" AutomaticallyStart="False"/>
+            </interactivity:Interaction.Behaviors>
         </Border>
         <local:ViewerControl x:Name="imageControl" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick" SaveButtonClick="imageControl_SaveButtonClick"/>
-        <Border Background="#7F000000" x:Name="loadingBorder" Visibility="Collapsed">
+        <Border x:Name="loadingBorder" Visibility="Collapsed">
             <ProgressRing IsActive="True" Width="100" Height="100" />
         </Border>
     </Canvas>

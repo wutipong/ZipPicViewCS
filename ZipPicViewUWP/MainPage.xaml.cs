@@ -61,11 +61,7 @@ namespace ZipPicViewUWP
             await RebuildSubFolderList();
 
             subFolderListCtrl.SelectedIndex = 0;
-            imageControl.Visibility = Visibility.Collapsed;
-            imageControl.AutoEnabled = false;
-            imageBorder.Visibility = Visibility.Collapsed;
-            loadingBorder.Visibility = Visibility.Collapsed;
-            thumbnailGrid.IsEnabled = true;
+            HideImageControl();
             this.IsEnabled = true;
         }
 
@@ -335,6 +331,8 @@ namespace ZipPicViewUWP
 
         private async void Thumbnail_Click(object sender, RoutedEventArgs e)
         {
+            BlurBehavior.Value = 10;
+            BlurBehavior.StartAnimation();
             imageControl.Visibility = Visibility.Visible;
 
             var file = ((Thumbnail)sender).UserData;
@@ -361,6 +359,8 @@ namespace ZipPicViewUWP
 
             await delayTask;
             loadingBorder.Visibility = Visibility.Visible;
+            ImageTransitionBehavior.Value = 10;
+            ImageTransitionBehavior.StartAnimation();
             imageControl.Filename = file.ExtractFilename();
 
             var source = new SoftwareBitmapSource();
@@ -369,6 +369,8 @@ namespace ZipPicViewUWP
 
             loadingBorder.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Visible;
+            ImageTransitionBehavior.Value = 0;
+            ImageTransitionBehavior.StartAnimation();
         }
 
         private void canvas_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -386,6 +388,13 @@ namespace ZipPicViewUWP
 
         private void imageControl_CloseButtonClick(object sender, RoutedEventArgs e)
         {
+            HideImageControl();
+        }
+
+        private void HideImageControl()
+        {
+            BlurBehavior.Value = 0;
+            BlurBehavior.StartAnimation();
             imageBorder.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
 
