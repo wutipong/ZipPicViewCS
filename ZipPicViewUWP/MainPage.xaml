@@ -39,10 +39,11 @@
             </interactivity:Interaction.Behaviors>
         </Grid>
         <Border x:Name="imageBorder" Visibility="Collapsed">
-            <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted" Tapped="image_Tapped"/>
-            <interactivity:Interaction.Behaviors>
-                <behaviors:Blur x:Name="ImageTransitionBehavior" Duration="500" AutomaticallyStart="False"/>
-            </interactivity:Interaction.Behaviors>
+            <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted" Tapped="image_Tapped">
+                <interactivity:Interaction.Behaviors>
+                    <behaviors:Blur x:Name="ImageTransitionBehavior" Duration="500" AutomaticallyStart="False"/>
+                </interactivity:Interaction.Behaviors>
+            </Image>
         </Border>
         <local:ViewerControl x:Name="imageControl" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick" SaveButtonClick="imageControl_SaveButtonClick"/>
         <Border x:Name="loadingBorder" Visibility="Collapsed">
