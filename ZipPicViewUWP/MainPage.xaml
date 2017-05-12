@@ -12,10 +12,10 @@
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920" >
             <SplitView x:Name="splitView" DisplayMode="CompactOverlay" PanePlacement="Left" CompactPaneLength="50" OpenPaneLength="300">
                 <SplitView.Content>
-                    <GridView x:Name="thumbnailGrid"></GridView>
+                    <GridView x:Name="thumbnailGrid"/>
                 </SplitView.Content>
                 <SplitView.Pane>
-                    <Grid Background="DarkSlateGray">
+                    <Grid Background="{StaticResource SidebarBackground}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="50"/>
                             <RowDefinition Height="*"/>
