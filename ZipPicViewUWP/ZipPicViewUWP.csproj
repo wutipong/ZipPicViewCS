@@ -101,6 +101,7 @@
     <Compile Include="FolderListItem.xaml.cs">
       <DependentUpon>FolderListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ImageHelper.cs" />
     <Compile Include="SevenZipMediaProvider.cs" />
     <Compile Include="AbstractMediaProvider.cs" />
     <Compile Include="App.xaml.cs">
@@ -177,7 +178,9 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
-    <None Include="Package.StoreAssociation.xml" />
+    <None Include="Package.StoreAssociation.xml">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

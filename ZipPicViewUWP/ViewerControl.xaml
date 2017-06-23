@@ -23,7 +23,8 @@
             <Button Name="saveBtn" RelativePanel.RightOf="filenameTextBlock" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True">
                 <SymbolIcon Symbol="Save" />
             </Button>
-            <ToggleButton Name="autoBtn" RelativePanel.RightOf="saveBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Checked="autoBtn_Checked" Unchecked="autoBtn_Unchecked" >
+            <Button Name="printBtn" RelativePanel.RightOf="saveBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Content="&#xE749;" FontFamily="Segoe MDL2 Assets" FontSize="18"/>
+            <ToggleButton Name="autoBtn" RelativePanel.RightOf="printBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" Checked="autoBtn_Checked" Unchecked="autoBtn_Unchecked" >
                 <SymbolIcon Symbol="Play"/>
             </ToggleButton>
             <Button Name="autoDurationBtn" Content="&#8711;" RelativePanel.RightOf="autoBtn" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" >

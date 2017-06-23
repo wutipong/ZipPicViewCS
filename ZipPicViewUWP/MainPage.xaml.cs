@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,13 +8,11 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
-using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace ZipPicViewUWP
@@ -50,6 +49,8 @@ namespace ZipPicViewUWP
                 selectFolderTextBlock.Text = selectedFolder.Ellipses(50);
             }
         }
+
+        private string currentImageFile;
 
         public async void SetMediaProvider(AbstractMediaProvider provider)
         {
@@ -96,14 +97,14 @@ namespace ZipPicViewUWP
                 var children = await provider.GetChildEntries(f);
 
                 SoftwareBitmapSource source = null;
-                if(children.Length > 0)
+                if (children.Length > 0)
                 {
-                    var bitmap = await CreateResizedBitmap(await provider.OpenEntryAsRandomAccessStreamAsync(children[0]), 40, 50);
+                    var bitmap = await ImageHelper.CreateResizedBitmap(await provider.OpenEntryAsRandomAccessStreamAsync(children[0]), 40, 50);
                     source = new SoftwareBitmapSource();
                     await source.SetBitmapAsync(bitmap);
                 }
 
-                var item = new FolderListItem { Text = folder, Value = f, ImageSource = source};
+                var item = new FolderListItem { Text = folder, Value = f, ImageSource = source };
                 subFolderListCtrl.Items.Add(item);
             }
         }
@@ -156,7 +157,7 @@ namespace ZipPicViewUWP
             try
             {
                 stream = await selected.OpenStreamForReadAsync();
-                
+
                 var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out isEncrypted);
                 if (isEncrypted)
                 {
@@ -167,7 +168,7 @@ namespace ZipPicViewUWP
                     var password = dialog.Password;
                     archive = ArchiveMediaProvider.TryOpenArchive(stream, password, out isEncrypted);
                 }
-                
+
                 var provider = ArchiveMediaProvider.Create(stream, archive);
 
                 FileName = selected.Name;
@@ -255,7 +256,7 @@ namespace ZipPicViewUWP
 
                     var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
 
-                    SoftwareBitmap bitmap = await CreateResizedBitmap(stream, 200, 200);
+                    SoftwareBitmap bitmap = await ImageHelper.CreateResizedBitmap(stream, 200, 200);
                     var source = new SoftwareBitmapSource();
                     var setSourceTask = source.SetBitmapAsync(bitmap);
 
@@ -277,58 +278,6 @@ namespace ZipPicViewUWP
             }
         }
 
-        private enum ImageOrientation { Portrait, Landscape };
-
-        private static async Task<SoftwareBitmap> CreateResizedBitmap(IRandomAccessStream stream, uint expectedWidth, uint expectedHeight)
-        {
-            var expectedOrientation = expectedWidth > expectedHeight ? ImageOrientation.Landscape : ImageOrientation.Portrait;
-
-            var decoder = await BitmapDecoder.CreateAsync(stream);
-
-            var width = decoder.PixelWidth;
-            var height = decoder.PixelHeight;
-            var imageOrientation = width > height ? ImageOrientation.Landscape : ImageOrientation.Portrait;
-
-            if (expectedOrientation != imageOrientation)
-            {
-                if (imageOrientation == ImageOrientation.Landscape)
-                {
-                    height = (expectedWidth * height) / width;
-                    width = expectedWidth;
-                }
-                else
-                {
-                    width = (expectedHeight * width) / height;
-                    height = expectedHeight;
-                }
-            }
-            else
-            {
-                if (imageOrientation == ImageOrientation.Landscape)
-                {
-                    width = (expectedHeight * width) / height;
-                    height = expectedHeight;
-                }
-                else
-                {
-                    height = (expectedWidth * height) / width;
-                    width = expectedWidth;
-                }
-            }
-
-            var transform = new BitmapTransform();
-            transform.InterpolationMode = BitmapInterpolationMode.Fant;
-            transform.ScaledWidth = width;
-            transform.ScaledHeight = height;
-
-            return await decoder.GetSoftwareBitmapAsync(
-                      BitmapPixelFormat.Bgra8,
-                      BitmapAlphaMode.Premultiplied,
-                      transform,
-                      ExifOrientationMode.RespectExifOrientation,
-                      ColorManagementMode.ColorManageToSRgb);
-        }
-
         private async void Thumbnail_Click(object sender, RoutedEventArgs e)
         {
             BlurBehavior.Value = 10;
@@ -340,10 +289,12 @@ namespace ZipPicViewUWP
 
             await SetCurrentFile(file, false);
             thumbnailGrid.IsEnabled = false;
+            splitView.IsEnabled = false;
         }
 
         private async Task SetCurrentFile(string file, bool withDelay = true)
         {
+            currentImageFile = file;
             var delayTask = Task.Delay(withDelay ? 250 : 0);
 
             uint width = (uint)canvas.RenderSize.Width;
@@ -352,24 +303,34 @@ namespace ZipPicViewUWP
             var createBitmapTask = Task.Run(async () =>
             {
                 var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
-                var bitmap = await CreateResizedBitmap(stream, width, height);
+                var bitmap = await ImageHelper.CreateResizedBitmap(stream, width, height);
 
                 return bitmap;
             });
 
             await delayTask;
-            loadingBorder.Visibility = Visibility.Visible;
-            ImageTransitionBehavior.Value = 10;
-            ImageTransitionBehavior.StartAnimation();
+            HideImage();
             imageControl.Filename = file.ExtractFilename();
 
             var source = new SoftwareBitmapSource();
             await source.SetBitmapAsync(await createBitmapTask);
             image.Source = source;
 
+            ShowImage();
+        }
+
+        private void ShowImage()
+        {
             loadingBorder.Visibility = Visibility.Collapsed;
             imageBorder.Visibility = Visibility.Visible;
             ImageTransitionBehavior.Value = 0;
+            ImageTransitionBehavior.StartAnimation();
+        }
+
+        private void HideImage()
+        {
+            loadingBorder.Visibility = Visibility.Visible;
+            ImageTransitionBehavior.Value = 10;
             ImageTransitionBehavior.StartAnimation();
         }
 
@@ -400,6 +361,7 @@ namespace ZipPicViewUWP
 
             thumbnailGrid.IsEnabled = true;
             imageControl.AutoEnabled = false;
+            splitView.IsEnabled = true;
         }
 
         private async void imageControl_NextButtonClick(object sender, RoutedEventArgs e)
@@ -506,6 +468,39 @@ namespace ZipPicViewUWP
         {
             imageControl.Visibility = imageControl.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             page.TopAppBar.Visibility = page.TopAppBar.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private async void imageControl_PrintButtonClick(object sender, RoutedEventArgs e)
+        {
+            var createBitmapTask = Task.Run(async () =>
+            {
+                var stream = await provider.OpenEntryAsRandomAccessStreamAsync(currentImageFile);
+                var decoder = await BitmapDecoder.CreateAsync(stream);
+                return await decoder.GetSoftwareBitmapAsync(
+                       BitmapPixelFormat.Bgra8,
+                       BitmapAlphaMode.Premultiplied);
+            });
+            var printHelper = new PrintHelper(printPanel);
+            printHelper.OnPreviewPagesCreated += PrintHelper_OnPreviewPagesCreated;
+            printPanel.Opacity = 1.0;
+            var source = new SoftwareBitmapSource();
+            var bitmap = await createBitmapTask;
+            await source.SetBitmapAsync(bitmap);
+
+            printImage.Source = source;
+            printFileName.Text = "Hello";
+            printImage.Height = bitmap.PixelHeight;
+            printImage.Width = bitmap.PixelWidth;
+
+            //printPanel.UpdateLayout();
+
+            await printHelper.ShowPrintUIAsync("ZipPicView - " + currentImageFile.ExtractFilename(), true);
+            printPanel.Opacity = 0;
+        }
+
+        private void PrintHelper_OnPreviewPagesCreated(List<FrameworkElement> obj)
+        {
+            ContentDialog dialog = new ContentDialog();
         }
     }
 }

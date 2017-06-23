@@ -70,6 +70,11 @@ namespace ZipPicViewUWP
             }
 
             durationList.SelectedIndex = 0;
+
+            if (!Windows.Graphics.Printing.PrintManager.IsSupported())
+            {
+                printBtn.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
@@ -122,6 +127,12 @@ namespace ZipPicViewUWP
         {
             add { saveBtn.Click += value; }
             remove { saveBtn.Click -= value; }
+        }
+
+        public event RoutedEventHandler PrintButtonClick
+        {
+            add { printBtn.Click += value; }
+            remove { printBtn.Click -= value; }
         }
 
         public bool? AutoEnabled
