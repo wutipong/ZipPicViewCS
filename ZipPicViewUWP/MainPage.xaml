@@ -11,13 +11,6 @@
     <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920">
             <Grid x:Name="printPanel" Opacity="0">
-                <StackPanel x:Name="printContent"
-                        Margin="0,0"
-                        Orientation="Vertical">
-                    <TextBlock x:Name="printFileName" />
-                    <Image x:Name="printImage"
-                       Stretch="Fill" />
-                </StackPanel>
             </Grid>
             <SplitView x:Name="splitView" DisplayMode="CompactOverlay" PanePlacement="Left" CompactPaneLength="50" OpenPaneLength="300">
                 <SplitView.Content>

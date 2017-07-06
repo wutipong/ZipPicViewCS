@@ -1,9 +1,9 @@
 ﻿{
   "dependencies": {
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.3.3",
-    "Microsoft.Toolkit.Uwp.UI": "1.4.1",
-    "Microsoft.Toolkit.Uwp.UI.Animations": "1.4.1",
-    "Microsoft.Toolkit.Uwp.UI.Controls": "1.4.1",
+    "Microsoft.Toolkit.Uwp.UI": "1.5.0",
+    "Microsoft.Toolkit.Uwp.UI.Animations": "1.5.0",
+    "Microsoft.Toolkit.Uwp.UI.Controls": "1.5.0",
     "SharpCompress": "0.17.1"
   },
   "frameworks": {

@@ -472,30 +472,19 @@ namespace ZipPicViewUWP
 
         private async void imageControl_PrintButtonClick(object sender, RoutedEventArgs e)
         {
-            var createBitmapTask = Task.Run(async () =>
-            {
-                var stream = await provider.OpenEntryAsRandomAccessStreamAsync(currentImageFile);
-                var decoder = await BitmapDecoder.CreateAsync(stream);
-                return await decoder.GetSoftwareBitmapAsync(
-                       BitmapPixelFormat.Bgra8,
-                       BitmapAlphaMode.Premultiplied);
-            });
+            var stream = await provider.OpenEntryAsRandomAccessStreamAsync(currentImageFile);
+            var output = new BitmapImage();
+            output.SetSource(stream);
+
+            var image = new Image();
+
             var printHelper = new PrintHelper(printPanel);
             printHelper.OnPreviewPagesCreated += PrintHelper_OnPreviewPagesCreated;
-            printPanel.Opacity = 1.0;
-            var source = new SoftwareBitmapSource();
-            var bitmap = await createBitmapTask;
-            await source.SetBitmapAsync(bitmap);
 
-            printImage.Source = source;
-            printFileName.Text = "Hello";
-            printImage.Height = bitmap.PixelHeight;
-            printImage.Width = bitmap.PixelWidth;
+            image.Source = output;
+            printHelper.AddFrameworkElementToPrint(image);
 
-            //printPanel.UpdateLayout();
-
-            await printHelper.ShowPrintUIAsync("ZipPicView - " + currentImageFile.ExtractFilename(), true);
-            printPanel.Opacity = 0;
+            await printHelper.ShowPrintUIAsync("ZipPicView - " + currentImageFile.ExtractFilename());
         }
 
         private void PrintHelper_OnPreviewPagesCreated(List<FrameworkElement> obj)
