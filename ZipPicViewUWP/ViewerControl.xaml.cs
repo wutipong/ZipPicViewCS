@@ -10,7 +10,7 @@ namespace ZipPicViewUWP
 {
     public sealed partial class ViewerControl : UserControl
     {
-        private static readonly TimeSpan[] advanceDurations = 
+        private static readonly TimeSpan[] advanceDurations =
             {
                 new TimeSpan(0, 0, 1),
                 new TimeSpan(0, 0, 5),
@@ -25,14 +25,17 @@ namespace ZipPicViewUWP
                 new TimeSpan(0, 30, 0),
                 new TimeSpan(1, 0, 0)
             };
+
         private DispatcherTimer timer;
 
         private int counter;
 
         public delegate void PreCountEvent(object sender);
+
         private PreCountEvent onPreCount;
 
         public delegate void AutoAdvanceEvent(object sender);
+
         private AutoAdvanceEvent onAutoAdvance;
 
         private RoutedEventHandler nextButtonClick;
@@ -54,7 +57,7 @@ namespace ZipPicViewUWP
             this.InitializeComponent();
             timer = new DispatcherTimer();
             timer.Tick += Timer_Tick;
-            timer.Interval = new TimeSpan(0, 0, 1); 
+            timer.Interval = new TimeSpan(0, 0, 1);
 
             nextButton.Click += NextButton_Click;
 
@@ -69,7 +72,21 @@ namespace ZipPicViewUWP
                 durationList.Items.Add(durationStr);
             }
 
-            durationList.SelectedIndex = 0;
+            var applicationData = Windows.Storage.ApplicationData.Current;
+            applicationData.LocalSettings.Values.TryGetValue("durationIndex", out var index);
+            durationList.SelectedIndex = index == null ? 0 : (int)index;
+
+            durationList.SelectionChanged += (_, __) =>
+            {
+                applicationData.LocalSettings.Values["durationIndex"] = durationList.SelectedIndex;
+            };
+
+            applicationData.LocalSettings.Values.TryGetValue("precount", out var precount);
+            precountToggle.IsOn = precount == null ? false : (bool)precount;
+            precountToggle.Toggled += (_, __) =>
+            {
+                applicationData.LocalSettings.Values["precount"] = precountToggle.IsOn;
+            };
 
             if (!Windows.Graphics.Printing.PrintManager.IsSupported())
             {
@@ -85,8 +102,8 @@ namespace ZipPicViewUWP
         private void Timer_Tick(object sender, object e)
         {
             counter--;
-            if(counter < 5 && counter > 0 && precountToggle.IsOn) { onPreCount?.Invoke(this); }
-            if(counter == 0)
+            if (counter < 5 && counter > 0 && precountToggle.IsOn) { onPreCount?.Invoke(this); }
+            if (counter == 0)
             {
                 onAutoAdvance?.Invoke(this);
                 nextButtonClick?.Invoke(this, null);
@@ -95,6 +112,7 @@ namespace ZipPicViewUWP
         }
 
         private string filename;
+
         public string Filename
         {
             get { return filename; }
