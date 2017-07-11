@@ -10,7 +10,7 @@
     mc:Ignorable="d" KeyUp="page_KeyUp" Loaded="page_Loaded" SizeChanged="page_SizeChanged">
     <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920">
-            <Grid x:Name="printPanel" Opacity="0">
+            <Grid x:Name="printPanel" Opacity="0" VerticalAlignment="Center" HorizontalAlignment="Center">
             </Grid>
             <SplitView x:Name="splitView" DisplayMode="CompactOverlay" PanePlacement="Left" CompactPaneLength="50" OpenPaneLength="300">
                 <SplitView.Content>

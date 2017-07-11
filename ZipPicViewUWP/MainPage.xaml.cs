@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -112,6 +113,7 @@ namespace ZipPicViewUWP
         public MainPage()
         {
             this.InitializeComponent();
+            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
         }
 
         private async void page_Loaded(object sender, RoutedEventArgs e)
@@ -476,7 +478,12 @@ namespace ZipPicViewUWP
             var output = new BitmapImage();
             output.SetSource(stream);
 
-            var image = new Image();
+            var image = new Image()
+            {
+                Stretch = Windows.UI.Xaml.Media.Stretch.UniformToFill,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
 
             var printHelper = new PrintHelper(printPanel);
             printHelper.OnPreviewPagesCreated += PrintHelper_OnPreviewPagesCreated;
