@@ -15,6 +15,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
+using Microsoft.Toolkit.Uwp.Helpers;
 
 namespace ZipPicViewUWP
 {
