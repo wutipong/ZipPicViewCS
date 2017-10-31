@@ -5,31 +5,19 @@ using Windows.Storage.Streams;
 
 namespace ZipPicViewUWP
 {
-    public class AbstractMediaProvider : IDisposable
+    public abstract class AbstractMediaProvider : IDisposable
     {
-        public virtual async Task<string[]> GetFolderEntries()
-        {
-            return await Task.Run(() => { return new string[0]; });
-        }
+        public abstract Task<string[]> GetFolderEntries();
 
-        public virtual async Task<string[]> GetChildEntries(string entry)
-        {
-            return await Task.Run(() => { return new string[0]; });
-        }
+        public abstract Task<string[]> GetChildEntries(string entry);
 
-        public virtual async Task<Stream> OpenEntryAsync(string entry)
-        {
-            return await Task.Run(() => { return (Stream)null; });
-        }
+        public abstract Task<Stream> OpenEntryAsync(string entry);
 
         public virtual void Dispose()
         {
         }
 
-        public virtual async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
-        {
-            return await Task.Run(() => { return (IRandomAccessStream)null; });
-        }
+        public abstract Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry);
 
         public bool FilterImageFileType(string entryName)
         {

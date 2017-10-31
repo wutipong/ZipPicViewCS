@@ -1,5 +1,6 @@
 ﻿using SharpCompress.Archives;
 using SharpCompress.Readers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -91,13 +92,20 @@ namespace ZipPicViewUWP
             {
                 if (Archive != null)
                 {
-                    var folderEntries = from entry in Archive.Entries
-                                        where entry.IsDirectory
-                                        orderby entry.Key
-                                        select entry.Key;
+                    try
+                    {
+                        var folderEntries = from entry in Archive.Entries
+                                            where entry.IsDirectory
+                                            orderby entry.Key
+                                            select entry.Key;
 
-                    output.Add(Root);
-                    output.AddRange(folderEntries);
+                        output.Add(Root);
+                        output.AddRange(folderEntries);
+                    }
+                    catch(Exception )
+                    {
+                        return null;
+                    }
                 }
             }
 

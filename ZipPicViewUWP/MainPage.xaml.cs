@@ -55,18 +55,23 @@ namespace ZipPicViewUWP
 
         private string currentImageFile;
 
-        public async void SetMediaProvider(AbstractMediaProvider provider)
+        public async Task<Exception> SetMediaProvider(AbstractMediaProvider provider)
         {
             if (this.provider != null) this.provider.Dispose();
             this.provider = provider;
             subFolderListCtrl.Items.Clear();
             folderList = await provider.GetFolderEntries();
 
+            if (folderList == null)
+                return new Exception("Unable to read the content.");
+
             await RebuildSubFolderList();
 
             subFolderListCtrl.SelectedIndex = 0;
             HideImageControl();
             this.IsEnabled = true;
+
+            return null;
         }
 
         private async Task RebuildSubFolderList()
@@ -180,8 +185,8 @@ namespace ZipPicViewUWP
 
                 var provider = ArchiveMediaProvider.Create(stream, archive);
 
+                await SetMediaProvider(provider);
                 FileName = selected.Name;
-                SetMediaProvider(provider);
             }
             catch (Exception err)
             {
@@ -204,9 +209,9 @@ namespace ZipPicViewUWP
                 IsEnabled = true;
                 return;
             }
+            
+            await SetMediaProvider(new FileSystemMediaProvider(selected));
             FileName = selected.Name;
-
-            SetMediaProvider(new FileSystemMediaProvider(selected));
         }
 
         private void subFolderButton_Click(object sender, RoutedEventArgs e)
