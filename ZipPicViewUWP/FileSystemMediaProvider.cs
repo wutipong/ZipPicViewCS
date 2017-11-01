@@ -18,54 +18,73 @@ namespace ZipPicViewUWP
             this.folder = folder;
         }
 
-        public override async Task<Stream> OpenEntryAsync(string entry)
+        public override async Task<(Stream, Exception error)> OpenEntryAsync(string entry)
         {
-            return await folder.OpenStreamForReadAsync(entry);
+            return (await folder.OpenStreamForReadAsync(entry), null);
         }
 
-        public override async Task<string[]> GetChildEntries(string entry)
+        public override async Task<(string[], Exception error)> GetChildEntries(string entry)
         {
-            var subFolder = entry == Root ? folder : await folder.GetFolderAsync(entry);
-
-            var files = await subFolder.GetFilesAsync();
-
-            var output = new List<string>(files.Count);
-
-            var startIndex = subFolder.Path.Length;
-
-            foreach (var path in
-                from f in files
-                where FilterImageFileType(f.Name)
-                select f.Path)
+            try
             {
-                output.Add(path.Substring(folder.Path.Length + 1));
+                var subFolder = entry == Root ? folder : await folder.GetFolderAsync(entry);
+
+                var files = await subFolder.GetFilesAsync();
+
+                var output = new List<string>(files.Count);
+
+                var startIndex = subFolder.Path.Length;
+
+                foreach (var path in
+                    from f in files
+                    where FilterImageFileType(f.Name)
+                    select f.Path)
+                {
+                    output.Add(path.Substring(folder.Path.Length + 1));
+                }
+                return (output.ToArray(), null);
             }
-            return output.ToArray();
-        }
-
-        public override async Task<string[]> GetFolderEntries()
-        {
-            var options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+            catch (Exception e)
             {
-                FolderDepth = FolderDepth.Deep
-            };
-
-            var subFolders = await folder.CreateFolderQueryWithOptions(options).GetFoldersAsync();
-
-            var output = new List<string>(subFolders.Count) { Root };
-
-            var startIndex = folder.Path.Length + 1;
-            foreach (var folder in subFolders)
-            {
-                output.Add(folder.Path.Substring(startIndex));
+                return (null, e);
             }
-
-            return output.ToArray();
         }
 
-        public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
+        public override async Task<(string[], Exception error)> GetFolderEntries()
         {
-            return (await OpenEntryAsync(entry)).AsRandomAccessStream();
+            try
+            {
+                var options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                {
+                    FolderDepth = FolderDepth.Deep
+                };
+
+                var subFolders = await folder.CreateFolderQueryWithOptions(options).GetFoldersAsync();
+
+                var output = new List<string>(subFolders.Count) { Root };
+
+                var startIndex = folder.Path.Length + 1;
+                foreach (var folder in subFolders)
+                {
+                    output.Add(folder.Path.Substring(startIndex));
+                }
+
+                return (output.ToArray(), null);
+            }
+            catch (Exception e)
+            {
+                return (null, e);
+            }
+        }
+
+        public override async Task<(IRandomAccessStream, Exception error)> OpenEntryAsRandomAccessStreamAsync(string entry)
+        {
+            var (results, error) = await OpenEntryAsync(entry);
+            if (error != null)
+            {
+                return (null, error);
+            }
+            return (results.AsRandomAccessStream(), null);
         }
     }
 }

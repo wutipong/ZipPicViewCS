@@ -80,9 +80,19 @@ namespace ZipPicViewUWP
                 Separator = '/';
         }
 
-        public override async Task<string[]> GetFolderEntries()
+        public override async Task<(string[], Exception error)> GetFolderEntries()
         {
-            return await Task.Run(() => FolderList);
+            return await Task.Run<(string[], Exception)>(() =>
+            {
+                try
+                {
+                    return (FolderList, null);
+                }
+                catch (Exception e)
+                {
+                    return (null, e);
+                }
+            });
         }
 
         protected virtual string[] CreateFolderList()
@@ -102,7 +112,7 @@ namespace ZipPicViewUWP
                         output.Add(Root);
                         output.AddRange(folderEntries);
                     }
-                    catch(Exception )
+                    catch (Exception)
                     {
                         return null;
                     }
@@ -112,25 +122,32 @@ namespace ZipPicViewUWP
             return output.ToArray();
         }
 
-        public override Task<string[]> GetChildEntries(string entry)
+        public override Task<(string[], Exception error)> GetChildEntries(string entry)
         {
-            return Task.Run(() =>
+            return Task.Run<(string[], Exception)>(() =>
             {
-                var entryLength = entry.Length;
-                LinkedList<string> output = new LinkedList<string>();
-                var folder = entry == Root ? "" : entry;
-
-                foreach (var file in FileList)
+                try
                 {
-                    if (!file.StartsWith(folder)) continue;
+                    var entryLength = entry.Length;
+                    var output = new LinkedList<string>();
+                    var folder = entry == Root ? "" : entry;
 
-                    var innerKey = file.Substring(folder.Length + 1);
-                    if (innerKey.Contains(Separator)) continue;
+                    foreach (var file in FileList)
+                    {
+                        if (!file.StartsWith(folder)) continue;
 
-                    if (FilterImageFileType(innerKey)) output.AddLast(file);
+                        var innerKey = file.Substring(folder.Length + 1);
+                        if (innerKey.Contains(Separator)) continue;
+
+                        if (FilterImageFileType(innerKey)) output.AddLast(file);
+                    }
+
+                    return (output.ToArray(), null);
                 }
-
-                return output.ToArray();
+                catch (Exception e)
+                {
+                    return (null, e);
+                }
             });
         }
 
@@ -148,20 +165,27 @@ namespace ZipPicViewUWP
             return files.ToArray();
         }
 
-        public override Task<Stream> OpenEntryAsync(string entry)
+        public override Task<(Stream, Exception error)> OpenEntryAsync(string entry)
         {
-            return Task.Run<Stream>(() =>
+            return Task.Run<(Stream, Exception)>(() =>
             {
                 var outputStream = new MemoryStream();
-                if (Archive == null) return outputStream;
-                lock (Archive)
+                if (Archive == null) return (null, new Exception("Cannot Read Archive"));
+                try
                 {
-                    using (var entryStream = Archive.Entries.First(e => e.Key == entry).OpenEntryStream())
+                    lock (Archive)
                     {
-                        entryStream.CopyTo(outputStream);
-                        outputStream.Seek(0, SeekOrigin.Begin);
+                        using (var entryStream = Archive.Entries.First(e => e.Key == entry).OpenEntryStream())
+                        {
+                            entryStream.CopyTo(outputStream);
+                            outputStream.Seek(0, SeekOrigin.Begin);
+                        }
+                        return (outputStream, null);
                     }
-                    return outputStream;
+                }
+                catch (Exception e)
+                {
+                    return (null, e);
                 }
             });
         }
@@ -181,10 +205,17 @@ namespace ZipPicViewUWP
             }
         }
 
-        public override async Task<IRandomAccessStream> OpenEntryAsRandomAccessStreamAsync(string entry)
+        public override async Task<(IRandomAccessStream, Exception error)> OpenEntryAsRandomAccessStreamAsync(string entry)
         {
-            var stream = await OpenEntryAsync(entry);
-            return stream.AsRandomAccessStream();
+            try
+            {
+                var stream = await OpenEntryAsync(entry);
+                return (stream.Item1.AsRandomAccessStream(), stream.error);
+            }
+            catch (Exception e)
+            {
+                return (null, e);
+            }
         }
     }
 }

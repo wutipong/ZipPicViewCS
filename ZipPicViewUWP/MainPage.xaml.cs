@@ -60,10 +60,12 @@ namespace ZipPicViewUWP
             if (this.provider != null) this.provider.Dispose();
             this.provider = provider;
             subFolderListCtrl.Items.Clear();
-            folderList = await provider.GetFolderEntries();
+            var (list, error) = await provider.GetFolderEntries();
 
-            if (folderList == null)
-                return new Exception("Unable to read the content.");
+            if (error != null)
+                return error;
+
+            folderList = list;
 
             await RebuildSubFolderList();
 
@@ -102,12 +104,21 @@ namespace ZipPicViewUWP
                     folder = prefix + folder;
                 }
 
-                var children = await provider.GetChildEntries(f);
+                var (children, error) = await provider.GetChildEntries(f);
+                if (error != null)
+                {
+                    throw error;
+                }
 
                 SoftwareBitmapSource source = null;
                 if (children.Length > 0)
                 {
-                    var bitmap = await ImageHelper.CreateResizedBitmap(await provider.OpenEntryAsRandomAccessStreamAsync(children[0]), 40, 50);
+                    var output = await provider.OpenEntryAsRandomAccessStreamAsync(children[0]);
+
+                    if (output.Item2 != null)
+                        throw output.Item2;
+
+                    var bitmap = await ImageHelper.CreateResizedBitmap(output.Item1, 40, 50);
                     source = new SoftwareBitmapSource();
                     await source.SetBitmapAsync(bitmap);
                 }
@@ -209,7 +220,7 @@ namespace ZipPicViewUWP
                 IsEnabled = true;
                 return;
             }
-            
+
             await SetMediaProvider(new FileSystemMediaProvider(selected));
             FileName = selected.Name;
         }
@@ -242,7 +253,10 @@ namespace ZipPicViewUWP
             var token = cancellationTokenSource.Token;
 
             thumbnailGrid.Items.Clear();
-            fileList = await provider.GetChildEntries(selected);
+            var results = await provider.GetChildEntries(selected);
+
+            fileList = results.Item1;
+
             Array.Sort(fileList, (string s1, string s2) =>
             {
                 int i1, i2;
@@ -269,8 +283,12 @@ namespace ZipPicViewUWP
                     thumbnailGrid.Items.Add(thumbnail);
 
                     var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
+                    if (stream.error != null)
+                    {
+                        throw stream.error;
+                    }
 
-                    SoftwareBitmap bitmap = await ImageHelper.CreateResizedBitmap(stream, 200, 200);
+                    SoftwareBitmap bitmap = await ImageHelper.CreateResizedBitmap(stream.Item1, 200, 200);
                     var source = new SoftwareBitmapSource();
                     var setSourceTask = source.SetBitmapAsync(bitmap);
 
@@ -317,7 +335,7 @@ namespace ZipPicViewUWP
             var createBitmapTask = Task.Run(async () =>
             {
                 var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
-                var bitmap = await ImageHelper.CreateResizedBitmap(stream, width, height);
+                var bitmap = await ImageHelper.CreateResizedBitmap(stream.Item1, width, height);
 
                 return bitmap;
             });
@@ -402,9 +420,12 @@ namespace ZipPicViewUWP
 
             var output = await file.OpenStreamForWriteAsync();
             var input = await provider.OpenEntryAsync(filename);
-            input.CopyTo(output);
+            if (input.error != null)
+                throw input.error;
 
-            input.Dispose();
+            input.Item1.CopyTo(output);
+
+            input.Item1.Dispose();
             output.Dispose();
         }
 
@@ -488,7 +509,7 @@ namespace ZipPicViewUWP
         {
             var stream = await provider.OpenEntryAsRandomAccessStreamAsync(currentImageFile);
             var output = new BitmapImage();
-            output.SetSource(stream);
+            output.SetSource(stream.Item1);
 
             printHelper.ClearListOfPrintableFrameworkElements();
             var image = new Image()
