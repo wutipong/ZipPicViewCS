@@ -40,18 +40,20 @@
                 <behaviors:Blur x:Name="BlurBehavior" Duration="500" AutomaticallyStart="False" />
             </interactivity:Interaction.Behaviors>
         </Grid>
-        <Border x:Name="imageBorder" Visibility="Collapsed">
-            <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted" Tapped="image_Tapped">
-                <interactivity:Interaction.Behaviors>
-                    <behaviors:Blur x:Name="ImageTransitionBehavior" Duration="500" AutomaticallyStart="False" />
-                </interactivity:Interaction.Behaviors>
-            </Image>
-        </Border>
+        <Canvas x:Name="viewerPanel" Visibility="Collapsed">
+            <Border x:Name="imageBorder" Visibility="Collapsed">
+                <Image x:Name="image" ManipulationMode="TranslateX" ManipulationCompleted="image_ManipulationCompleted" Tapped="image_Tapped">
+                    <interactivity:Interaction.Behaviors>
+                        <behaviors:Blur x:Name="ImageTransitionBehavior" Duration="500" AutomaticallyStart="False" />
+                    </interactivity:Interaction.Behaviors>
+                </Image>
+            </Border>
 
-        <local:ViewerControl x:Name="imageControl" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick" SaveButtonClick="imageControl_SaveButtonClick" PrintButtonClick="imageControl_PrintButtonClick" />
-        <Border x:Name="loadingBorder" Visibility="Collapsed">
-            <ProgressRing IsActive="True" Width="100" Height="100" />
-        </Border>
+            <local:ViewerControl x:Name="imageControl" Visibility="Collapsed" CloseButtonClick="imageControl_CloseButtonClick" NextButtonClick="imageControl_NextButtonClick" PrevButtonClick="imageControl_PrevButtonClick" SaveButtonClick="imageControl_SaveButtonClick" PrintButtonClick="imageControl_PrintButtonClick" />
+            <Border x:Name="loadingBorder" Visibility="Collapsed">
+                <ProgressRing IsActive="True" Width="100" Height="100" />
+            </Border>
+        </Canvas>
     </Canvas>
     <Page.TopAppBar>
         <CommandBar VerticalContentAlignment="Center" VerticalAlignment="Center">

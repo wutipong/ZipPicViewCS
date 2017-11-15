@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +15,6 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
-using Microsoft.Toolkit.Uwp.Helpers;
 
 namespace ZipPicViewUWP
 {
@@ -315,13 +314,17 @@ namespace ZipPicViewUWP
             BlurBehavior.Value = 10;
             BlurBehavior.StartAnimation();
             imageControl.Visibility = Visibility.Visible;
+            viewerPanel.Visibility = Visibility.Visible;
 
             var file = ((Thumbnail)sender).UserData;
             currentFileIndex = Array.FindIndex(fileList, (string value) => value == file);
 
             await SetCurrentFile(file, false);
-            thumbnailGrid.IsEnabled = false;
-            splitView.IsEnabled = false;
+            if (viewerPanel.Visibility == Visibility.Visible)
+            {
+                thumbnailGrid.IsEnabled = false;
+                splitView.IsEnabled = false;
+            }
         }
 
         private async Task SetCurrentFile(string file, bool withDelay = true)
@@ -349,6 +352,8 @@ namespace ZipPicViewUWP
             image.Source = source;
 
             ShowImage();
+            if (viewerPanel.Visibility == Visibility.Collapsed)
+                imageBorder.Visibility = Visibility.Collapsed;
         }
 
         private void ShowImage()
@@ -377,6 +382,16 @@ namespace ZipPicViewUWP
                     fe.Height = e.NewSize.Height;
                 }
             }
+
+            foreach (var child in viewerPanel.Children)
+            {
+                if (child is FrameworkElement)
+                {
+                    var fe = (FrameworkElement)child;
+                    fe.Width = e.NewSize.Width;
+                    fe.Height = e.NewSize.Height;
+                }
+            }
         }
 
         private void imageControl_CloseButtonClick(object sender, RoutedEventArgs e)
@@ -390,7 +405,7 @@ namespace ZipPicViewUWP
             BlurBehavior.StartAnimation();
             imageBorder.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
-
+            viewerPanel.Visibility = Visibility.Collapsed;
             thumbnailGrid.IsEnabled = true;
             imageControl.AutoEnabled = false;
             splitView.IsEnabled = true;
