@@ -167,6 +167,7 @@ namespace ZipPicViewUWP
             picker.FileTypeFilter.Add(".zip");
             picker.FileTypeFilter.Add(".rar");
             picker.FileTypeFilter.Add(".7z");
+            picker.FileTypeFilter.Add(".pdf");
             picker.FileTypeFilter.Add("*");
 
             var selected = await picker.PickSingleFileAsync();
@@ -176,35 +177,46 @@ namespace ZipPicViewUWP
                 return;
             }
 
-            Stream stream = null;
-            bool isEncrypted;
-            try
+            if (selected.FileType == ".pdf")
             {
-                stream = await selected.OpenStreamForReadAsync();
-
-                var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out isEncrypted);
-                if (isEncrypted)
-                {
-                    var dialog = new PasswordDialog();
-                    var result = await dialog.ShowAsync();
-                    if (result != ContentDialogResult.Primary)
-                        return;
-                    var password = dialog.Password;
-                    archive = ArchiveMediaProvider.TryOpenArchive(stream, password, out isEncrypted);
-                }
-
-                var provider = ArchiveMediaProvider.Create(stream, archive);
+                var provider = new PdfMediaProvider(selected);
+                await provider.Load();
 
                 await SetMediaProvider(provider);
                 FileName = selected.Name;
             }
-            catch (Exception err)
+            else
             {
-                var dialog = new MessageDialog(String.Format("Cannot open file: {0} : {1}.", selected.Name, err.Message), "Error");
-                await dialog.ShowAsync();
-                stream?.Dispose();
-                IsEnabled = true;
-                return;
+                Stream stream = null;
+                bool isEncrypted;
+                try
+                {
+                    stream = await selected.OpenStreamForReadAsync();
+
+                    var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out isEncrypted);
+                    if (isEncrypted)
+                    {
+                        var dialog = new PasswordDialog();
+                        var result = await dialog.ShowAsync();
+                        if (result != ContentDialogResult.Primary)
+                            return;
+                        var password = dialog.Password;
+                        archive = ArchiveMediaProvider.TryOpenArchive(stream, password, out isEncrypted);
+                    }
+
+                    var provider = ArchiveMediaProvider.Create(stream, archive);
+
+                    await SetMediaProvider(provider);
+                    FileName = selected.Name;
+                }
+                catch (Exception err)
+                {
+                    var dialog = new MessageDialog(String.Format("Cannot open file: {0} : {1}.", selected.Name, err.Message), "Error");
+                    await dialog.ShowAsync();
+                    stream?.Dispose();
+                    IsEnabled = true;
+                    return;
+                }
             }
         }
 

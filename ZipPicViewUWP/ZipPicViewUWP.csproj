@@ -102,6 +102,7 @@
       <DependentUpon>FolderListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="ImageHelper.cs" />
+    <Compile Include="PdfMediaProvider.cs" />
     <Compile Include="SevenZipMediaProvider.cs" />
     <Compile Include="AbstractMediaProvider.cs" />
     <Compile Include="App.xaml.cs">
