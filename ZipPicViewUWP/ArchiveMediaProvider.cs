@@ -75,6 +75,7 @@ namespace ZipPicViewUWP
             this.stream = stream;
 
             Separator = DetermineSeparator();
+            FileFilter = new PhysicalFileFilter();
         }
 
         private char DetermineSeparator()

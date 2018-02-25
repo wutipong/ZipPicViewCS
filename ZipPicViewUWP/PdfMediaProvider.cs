@@ -18,6 +18,7 @@ namespace ZipPicViewUWP
         public PdfMediaProvider(StorageFile file)
         {
             this.file = file;
+            FileFilter = new PdfFileFIlter();
         }
 
         public async Task Load()
@@ -33,9 +34,7 @@ namespace ZipPicViewUWP
                 var output = new string[pageCount];
                 for (uint i = 0; i < pageCount; i++)
                 {
-                    //TODO: Make the provider decide whether or not the file is image file.
-                    output[i] = i.ToString() + ".png"; 
-                    // a hack to satisfy image file type.
+                    output[i] = i.ToString(); 
                 }
 
                 return (output, null);
@@ -58,7 +57,7 @@ namespace ZipPicViewUWP
         public override async Task<(IRandomAccessStream, Exception error)> OpenEntryAsRandomAccessStreamAsync(string entry)
         {
 
-            var pageindex = uint.Parse(entry.Substring(0, entry.IndexOf(".png")));
+            var pageindex = uint.Parse(entry);
 
             var page = pdfDocument.GetPage(pageindex);
 

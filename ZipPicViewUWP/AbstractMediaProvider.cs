@@ -13,6 +13,8 @@ namespace ZipPicViewUWP
 
         public abstract Task<(Stream, Exception error)> OpenEntryAsync(string entry);
 
+        public FileFilter FileFilter { get; protected set; }
+
         public virtual void Dispose()
         {
         }
@@ -21,18 +23,8 @@ namespace ZipPicViewUWP
 
         public bool FilterImageFileType(string entryName)
         {
-            int indexOfDot = entryName.LastIndexOf(".");
-            if (indexOfDot == -1) return false;
-
-            string extension = entryName.Substring(indexOfDot + 1).ToLower(); ;
-
-            string[] formats = { "jpg", "png", "jpeg" };
-            foreach (var format in formats)
-            {
-                if (format == extension) return true;
-            }
-
-            return false;
+            if (FileFilter == null) return true;
+            return FileFilter.IsImageFile(entryName);
         }
 
         protected string Root
