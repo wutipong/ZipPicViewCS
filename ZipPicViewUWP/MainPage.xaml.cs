@@ -206,7 +206,8 @@ namespace ZipPicViewUWP
 
                     var provider = ArchiveMediaProvider.Create(stream, archive);
 
-                    await SetMediaProvider(provider);
+                    var error = await SetMediaProvider(provider);
+                    if (error != null) throw error;
                     FileName = selected.Name;
                 }
                 catch (Exception err)
