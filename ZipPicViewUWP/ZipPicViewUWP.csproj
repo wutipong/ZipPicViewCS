@@ -102,6 +102,9 @@
     <Compile Include="FolderListItem.xaml.cs">
       <DependentUpon>FolderListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FolderReadingDialog.xaml.cs">
+      <DependentUpon>FolderReadingDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ImageHelper.cs" />
     <Compile Include="PdfFileFIlter.cs" />
     <Compile Include="PdfMediaProvider.cs" />
@@ -207,6 +210,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="FolderListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FolderReadingDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

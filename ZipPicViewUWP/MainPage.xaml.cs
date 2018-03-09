@@ -56,8 +56,13 @@ namespace ZipPicViewUWP
 
         public async Task<Exception> SetMediaProvider(AbstractMediaProvider provider)
         {
+            FolderReadingDialog dialog = new FolderReadingDialog();
+            var t = dialog.ShowAsync(ContentDialogPlacement.Popup);
+            var waitTask = Task.Delay(1000);
+
             if (this.provider != null) this.provider.Dispose();
             this.provider = provider;
+
             subFolderListCtrl.Items.Clear();
             var (list, error) = await provider.GetFolderEntries();
 
@@ -70,7 +75,11 @@ namespace ZipPicViewUWP
 
             subFolderListCtrl.SelectedIndex = 0;
             HideImageControl();
-            this.IsEnabled = true;
+            IsEnabled = true;
+
+            await waitTask;
+
+            dialog.Hide();
 
             return null;
         }
