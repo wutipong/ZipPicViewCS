@@ -123,7 +123,11 @@ namespace ZipPicViewUWP
 
                 if (children.Length > 0)
                 {
-                    var t = SetFolderThumbnail(children[0], item);
+                    var cover = provider.FileFilter.FindCoverPage(children);
+                    if (cover != null)
+                    {
+                        var t = SetFolderThumbnail(cover, item);
+                    }
                 }
             }
         }

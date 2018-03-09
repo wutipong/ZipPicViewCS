@@ -8,6 +8,20 @@ namespace ZipPicViewUWP
 {
     class PhysicalFileFilter : FileFilter
     {
+        private readonly string[] coverKeywords = new string[]{ "cover", "top" };
+
+        public override string FindCoverPage(string[] filenames)
+        {
+            if (filenames.Length <= 0) return null;
+            foreach(var keyword in coverKeywords){
+                var name = filenames.FirstOrDefault((s) => s.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+                if (name != null) return name;
+            }
+
+            return filenames[0];
+            
+        }
+
         public override bool IsImageFile(string filename)
         {
             int indexOfDot = filename.LastIndexOf(".");
