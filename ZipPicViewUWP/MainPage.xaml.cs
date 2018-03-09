@@ -208,12 +208,11 @@ namespace ZipPicViewUWP
             else
             {
                 Stream stream = null;
-                bool isEncrypted;
                 try
                 {
                     stream = await selected.OpenStreamForReadAsync();
 
-                    var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out isEncrypted);
+                    var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out bool isEncrypted);
                     if (isEncrypted)
                     {
                         var dialog = new PasswordDialog();
@@ -407,9 +406,8 @@ namespace ZipPicViewUWP
         {
             foreach (var child in canvas.Children)
             {
-                if (child is FrameworkElement)
+                if (child is FrameworkElement fe)
                 {
-                    var fe = (FrameworkElement)child;
                     fe.Width = e.NewSize.Width;
                     fe.Height = e.NewSize.Height;
                 }
@@ -417,9 +415,8 @@ namespace ZipPicViewUWP
 
             foreach (var child in viewerPanel.Children)
             {
-                if (child is FrameworkElement)
+                if (child is FrameworkElement fe)
                 {
-                    var fe = (FrameworkElement)child;
                     fe.Width = e.NewSize.Width;
                     fe.Height = e.NewSize.Height;
                 }
@@ -456,11 +453,11 @@ namespace ZipPicViewUWP
         private async void imageControl_SaveButtonClick(object sender, RoutedEventArgs e)
         {
             var filename = fileList[currentFileIndex];
-            var input = await provider.OpenEntryAsync(filename);
+            var (stream, suggestedFileName, error) = await provider.OpenEntryAsync(filename);
 
             var picker = new FileSavePicker
             {
-                SuggestedFileName = input.suggestedFileName
+                SuggestedFileName = suggestedFileName
             };
 
             picker.FileTypeChoices.Add("All", new List<string>() { "." });
@@ -469,13 +466,13 @@ namespace ZipPicViewUWP
             {
                 var output = await file.OpenStreamForWriteAsync();
 
-                if (input.error != null)
-                    throw input.error;
+                if (error != null)
+                    throw error;
 
-                input.stream.CopyTo(output);
+                stream.CopyTo(output);
                 output.Dispose();
             }
-            input.stream.Dispose();
+            stream.Dispose();
             
         }
 

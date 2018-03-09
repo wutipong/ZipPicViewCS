@@ -49,10 +49,12 @@ namespace ZipPicViewUWP
                 }
             }
 
-            var transform = new BitmapTransform();
-            transform.InterpolationMode = BitmapInterpolationMode.Fant;
-            transform.ScaledWidth = width;
-            transform.ScaledHeight = height;
+            var transform = new BitmapTransform
+            {
+                InterpolationMode = BitmapInterpolationMode.Fant,
+                ScaledWidth = width,
+                ScaledHeight = height
+            };
 
             return await decoder.GetSoftwareBitmapAsync(
                       BitmapPixelFormat.Bgra8,
