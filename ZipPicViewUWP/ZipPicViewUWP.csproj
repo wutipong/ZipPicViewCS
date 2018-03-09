@@ -98,11 +98,14 @@
     <None Include="PrivacyPolicy.md" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileFilter.cs" />
     <Compile Include="FolderListItem.xaml.cs">
       <DependentUpon>FolderListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="ImageHelper.cs" />
+    <Compile Include="PdfFileFIlter.cs" />
     <Compile Include="PdfMediaProvider.cs" />
+    <Compile Include="PhysicalFileFilter.cs" />
     <Compile Include="SevenZipMediaProvider.cs" />
     <Compile Include="AbstractMediaProvider.cs" />
     <Compile Include="App.xaml.cs">

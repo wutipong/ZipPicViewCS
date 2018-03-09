@@ -206,7 +206,8 @@ namespace ZipPicViewUWP
 
                     var provider = ArchiveMediaProvider.Create(stream, archive);
 
-                    await SetMediaProvider(provider);
+                    var error = await SetMediaProvider(provider);
+                    if (error != null) throw error;
                     FileName = selected.Name;
                 }
                 catch (Exception err)
@@ -270,11 +271,10 @@ namespace ZipPicViewUWP
 
             Array.Sort(fileList, (string s1, string s2) =>
             {
-                int i1, i2;
-                string s1WithoutExtension = s1.Substring(0, s1.LastIndexOf("."));
-                string s2WithoutExtension = s2.Substring(0, s2.LastIndexOf("."));
+                string s1WithoutExtension = s1.Contains('.') ? s1.Substring(0, s1.LastIndexOf(".")) : s1;
+                string s2WithoutExtension = s2.Contains('.')? s2.Substring(0, s2.LastIndexOf(".")) : s2;
 
-                if (Int32.TryParse(s1WithoutExtension, out i1) && Int32.TryParse(s2WithoutExtension, out i2))
+                if (Int32.TryParse(s1WithoutExtension, out int i1) && Int32.TryParse(s2WithoutExtension, out int i2))
                 {
                     return i1.CompareTo(i2);
                 }

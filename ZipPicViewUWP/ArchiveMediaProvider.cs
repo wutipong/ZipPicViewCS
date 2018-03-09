@@ -74,10 +74,20 @@ namespace ZipPicViewUWP
             this.Archive = archive;
             this.stream = stream;
 
-            if (archive.Type == SharpCompress.Common.ArchiveType.Rar)
-                Separator = '\\';
-            else
-                Separator = '/';
+            Separator = DetermineSeparator();
+            FileFilter = new PhysicalFileFilter();
+        }
+
+        private char DetermineSeparator()
+        {
+            foreach(var entry in Archive.Entries)
+            {
+                if (entry.Key.Contains('\\')) {
+                    return '\\';
+                }
+            }
+
+            return '/';
         }
 
         public override async Task<(string[], Exception error)> GetFolderEntries()
@@ -98,6 +108,7 @@ namespace ZipPicViewUWP
         protected virtual string[] CreateFolderList()
         {
             var output = new List<string>();
+            Exception exception = null;
             lock (Archive)
             {
                 if (Archive != null)
@@ -111,14 +122,28 @@ namespace ZipPicViewUWP
 
                         output.Add(Root);
                         output.AddRange(folderEntries);
+
+                        foreach(var entry in Archive.Entries)
+                        {
+                            var key = entry.Key;
+                            var separatorIndex = key.LastIndexOf(Separator);
+                            if (separatorIndex < 0) continue;
+
+                            var parent = key.Substring(0, separatorIndex +1);
+
+                            if (!output.Contains(parent))
+                                output.Add(parent);
+                        }
                     }
-                    catch (Exception)
+                    catch (Exception err)
                     {
-                        return null;
+                        exception = err;
                     }
                 }
             }
 
+            if (exception != null)
+                throw exception;
             return output.ToArray();
         }
 

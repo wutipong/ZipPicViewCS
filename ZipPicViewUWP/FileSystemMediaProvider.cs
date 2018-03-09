@@ -16,6 +16,7 @@ namespace ZipPicViewUWP
         public FileSystemMediaProvider(StorageFolder folder)
         {
             this.folder = folder;
+            FileFilter = new PhysicalFileFilter();
         }
 
         public override async Task<(Stream, Exception error)> OpenEntryAsync(string entry)
