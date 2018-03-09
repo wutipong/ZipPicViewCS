@@ -10,6 +10,7 @@ using Windows.ApplicationModel.Core;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.System.Display;
 using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -29,6 +30,7 @@ namespace ZipPicViewUWP
         private MediaElement clickSound;
         private string filename;
         private PrintHelper printHelper;
+        private DisplayRequest displayRequest;
 
         private string FileName
         {
@@ -385,6 +387,9 @@ namespace ZipPicViewUWP
             ShowImage();
             if (viewerPanel.Visibility == Visibility.Collapsed)
                 imageBorder.Visibility = Visibility.Collapsed;
+
+            displayRequest = new DisplayRequest();
+            displayRequest.RequestActive();
         }
 
         private void ShowImage()
@@ -438,6 +443,12 @@ namespace ZipPicViewUWP
             thumbnailGrid.IsEnabled = true;
             imageControl.AutoEnabled = false;
             splitView.IsEnabled = true;
+
+            if (displayRequest != null)
+            {
+                displayRequest.RequestRelease();
+                displayRequest = null;
+            }
         }
 
         private async void imageControl_NextButtonClick(object sender, RoutedEventArgs e)
