@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -25,27 +26,32 @@ namespace ZipPicViewUWP
         public FolderListItem()
         {
             this.InitializeComponent();
-
         }
 
         public ImageSource ImageSource
         {
             set
             {
-                if(value == null)
+                if (value == null)
                 {
                     image.Visibility = Visibility.Collapsed;
                     folderIcon.Visibility = Visibility.Visible;
                 }
-
                 else
                 {
+                    image.Source = value;
                     image.Visibility = Visibility.Visible;
                     folderIcon.Visibility = Visibility.Collapsed;
-
-                    image.Source = value;
                 }
             }
+        }
+
+        public async void SetImageSourceAsync(ImageSource source)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                ImageSource = source;
+            });
         }
 
         public string Text
@@ -55,6 +61,5 @@ namespace ZipPicViewUWP
         }
 
         public string Value { get; set; }
-        
     }
 }

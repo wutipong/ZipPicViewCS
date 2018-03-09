@@ -109,22 +109,29 @@ namespace ZipPicViewUWP
                     throw error;
                 }
 
-                SoftwareBitmapSource source = null;
+                var item = new FolderListItem { Text = folder, Value = f };
+                subFolderListCtrl.Items.Add(item);
+
                 if (children.Length > 0)
                 {
-                    var output = await provider.OpenEntryAsRandomAccessStreamAsync(children[0]);
-
-                    if (output.Item2 != null)
-                        throw output.Item2;
-
-                    var bitmap = await ImageHelper.CreateResizedBitmap(output.Item1, 40, 50);
-                    source = new SoftwareBitmapSource();
-                    await source.SetBitmapAsync(bitmap);
+                    var t = SetFolderThumbnail(children[0], item);
                 }
-
-                var item = new FolderListItem { Text = folder, Value = f, ImageSource = source };
-                subFolderListCtrl.Items.Add(item);
             }
+        }
+
+        private async Task SetFolderThumbnail(string entry, FolderListItem item)
+        {
+            SoftwareBitmapSource source = null;
+            var output = await provider.OpenEntryAsRandomAccessStreamAsync(entry);
+
+            if (output.Item2 != null)
+                throw output.Item2;
+
+            var bitmap = await ImageHelper.CreateResizedBitmap(output.Item1, 40, 50);
+            source = new SoftwareBitmapSource();
+            await source.SetBitmapAsync(bitmap);
+
+            item.SetImageSourceAsync(source);
         }
 
         public MainPage()
@@ -272,7 +279,7 @@ namespace ZipPicViewUWP
             Array.Sort(fileList, (string s1, string s2) =>
             {
                 string s1WithoutExtension = s1.Contains('.') ? s1.Substring(0, s1.LastIndexOf(".")) : s1;
-                string s2WithoutExtension = s2.Contains('.')? s2.Substring(0, s2.LastIndexOf(".")) : s2;
+                string s2WithoutExtension = s2.Contains('.') ? s2.Substring(0, s2.LastIndexOf(".")) : s2;
 
                 if (Int32.TryParse(s1WithoutExtension, out int i1) && Int32.TryParse(s2WithoutExtension, out int i2))
                 {
