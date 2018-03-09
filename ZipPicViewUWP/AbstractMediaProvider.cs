@@ -11,7 +11,7 @@ namespace ZipPicViewUWP
 
         public abstract Task<(string[], Exception error)> GetChildEntries(string entry);
 
-        public abstract Task<(Stream, Exception error)> OpenEntryAsync(string entry);
+        public abstract Task<(Stream stream, string suggestedFileName, Exception error)> OpenEntryAsync(string entry);
 
         public FileFilter FileFilter { get; protected set; }
 

@@ -190,12 +190,12 @@ namespace ZipPicViewUWP
             return files.ToArray();
         }
 
-        public override Task<(Stream, Exception error)> OpenEntryAsync(string entry)
+        public override Task<(Stream stream, string suggestedFileName, Exception error)> OpenEntryAsync(string entry)
         {
-            return Task.Run<(Stream, Exception)>(() =>
+            return Task.Run<(Stream, string, Exception)>(() =>
             {
                 var outputStream = new MemoryStream();
-                if (Archive == null) return (null, new Exception("Cannot Read Archive"));
+                if (Archive == null) return (null, null, new Exception("Cannot Read Archive"));
                 try
                 {
                     lock (Archive)
@@ -205,12 +205,12 @@ namespace ZipPicViewUWP
                             entryStream.CopyTo(outputStream);
                             outputStream.Seek(0, SeekOrigin.Begin);
                         }
-                        return (outputStream, null);
+                        return (outputStream, entry.ExtractFilename(), null);
                     }
                 }
                 catch (Exception e)
                 {
-                    return (null, e);
+                    return (null, null, e);
                 }
             });
         }
@@ -234,8 +234,8 @@ namespace ZipPicViewUWP
         {
             try
             {
-                var stream = await OpenEntryAsync(entry);
-                return (stream.Item1.AsRandomAccessStream(), stream.error);
+                var (stream, name, error) = await OpenEntryAsync(entry);
+                return (stream.AsRandomAccessStream(), error);
             }
             catch (Exception e)
             {

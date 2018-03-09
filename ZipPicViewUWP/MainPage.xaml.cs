@@ -137,8 +137,8 @@ namespace ZipPicViewUWP
             SoftwareBitmapSource source = null;
             var output = await provider.OpenEntryAsRandomAccessStreamAsync(entry);
 
-            if (output.Item2 != null)
-                throw output.Item2;
+            if (output.error != null)
+                throw output.error;
 
             var bitmap = await ImageHelper.CreateResizedBitmap(output.Item1, 40, 50);
             source = new SoftwareBitmapSource();
@@ -456,24 +456,27 @@ namespace ZipPicViewUWP
         private async void imageControl_SaveButtonClick(object sender, RoutedEventArgs e)
         {
             var filename = fileList[currentFileIndex];
-            var filenameWithoutPath = filename;
+            var input = await provider.OpenEntryAsync(filename);
 
-            var picker = new FileSavePicker();
+            var picker = new FileSavePicker
+            {
+                SuggestedFileName = input.suggestedFileName
+            };
 
-            picker.SuggestedFileName = filename.ExtractFilename();
             picker.FileTypeChoices.Add("All", new List<string>() { "." });
             var file = await picker.PickSaveFileAsync();
-            if (file == null) return;
+            if (file != null)
+            {
+                var output = await file.OpenStreamForWriteAsync();
 
-            var output = await file.OpenStreamForWriteAsync();
-            var input = await provider.OpenEntryAsync(filename);
-            if (input.error != null)
-                throw input.error;
+                if (input.error != null)
+                    throw input.error;
 
-            input.Item1.CopyTo(output);
-
-            input.Item1.Dispose();
-            output.Dispose();
+                input.stream.CopyTo(output);
+                output.Dispose();
+            }
+            input.stream.Dispose();
+            
         }
 
         private async Task AdvanceImage(int step)

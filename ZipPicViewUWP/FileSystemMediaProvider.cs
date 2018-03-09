@@ -19,9 +19,9 @@ namespace ZipPicViewUWP
             FileFilter = new PhysicalFileFilter();
         }
 
-        public override async Task<(Stream, Exception error)> OpenEntryAsync(string entry)
+        public override async Task<(Stream stream, string suggestedFileName, Exception error)> OpenEntryAsync(string entry)
         {
-            return (await folder.OpenStreamForReadAsync(entry), null);
+            return (await folder.OpenStreamForReadAsync(entry), entry.ExtractFilename(), null);
         }
 
         public override async Task<(string[], Exception error)> GetChildEntries(string entry)
@@ -80,7 +80,7 @@ namespace ZipPicViewUWP
 
         public override async Task<(IRandomAccessStream, Exception error)> OpenEntryAsRandomAccessStreamAsync(string entry)
         {
-            var (results, error) = await OpenEntryAsync(entry);
+            var (results, suggested, error) = await OpenEntryAsync(entry);
             if (error != null)
             {
                 return (null, error);
