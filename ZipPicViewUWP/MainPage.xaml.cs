@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Graphics.Imaging;
+using Windows.Media.Casting;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.System.Display;
@@ -164,6 +165,41 @@ namespace ZipPicViewUWP
                 ApplicationContentMarginLeft = 0,
                 ApplicationContentMarginTop = 0
             };
+
+            var picker = new CastingDevicePicker();
+            picker.Filter.SupportsPictures = true;
+            picker.CastingDeviceSelected += Picker_CastingDeviceSelected;
+            picker.Show(new Windows.Foundation.Rect(50, 50, 100, 100));
+        }
+
+        private async void Picker_CastingDeviceSelected(CastingDevicePicker sender, CastingDeviceSelectedEventArgs args)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            {
+                CastingConnection connection = args.SelectedCastingDevice.CreateCastingConnection();
+                
+                connection.ErrorOccurred += Connection_ErrorOccurred;
+                connection.StateChanged += Connection_StateChanged;
+
+                await connection.RequestStartCastingAsync(image.GetAsCastingSource());
+                
+            });
+        }
+
+        private async void Connection_StateChanged(CastingConnection sender, object args)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                inAppNotification.Show("Casting Connection State Changed: " + sender.State, 2000);
+            });
+        }
+
+        private async void Connection_ErrorOccurred(CastingConnection sender, CastingConnectionErrorOccurredEventArgs args)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                inAppNotification.Show("Casting Error Occured: " + args.Message, 2000);
+            });
         }
 
         private void ImageControl_OnPreCount(object sender)
@@ -383,13 +419,14 @@ namespace ZipPicViewUWP
             var source = new SoftwareBitmapSource();
             await source.SetBitmapAsync(await createBitmapTask);
             image.Source = source;
-
+            
             ShowImage();
             if (viewerPanel.Visibility == Visibility.Collapsed)
                 imageBorder.Visibility = Visibility.Collapsed;
 
             displayRequest = new DisplayRequest();
             displayRequest.RequestActive();
+
         }
 
         private void ShowImage()

@@ -7,8 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"  
     mc:Ignorable="d" KeyUp="page_KeyUp" Loaded="page_Loaded" SizeChanged="page_SizeChanged">
-    <Canvas x:Name="canvas" SizeChanged="canvas_SizeChanged">
+    <Grid x:Name="canvas" SizeChanged="canvas_SizeChanged">
         <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1019" Width="1920">
             <Grid x:Name="printPanel" Opacity="0">
             </Grid>
@@ -36,6 +37,7 @@
                     </Grid>
                 </SplitView.Pane>
             </SplitView>
+            <controls:InAppNotification x:Name="inAppNotification" Height="100"/>
             <interactivity:Interaction.Behaviors>
                 <behaviors:Blur x:Name="BlurBehavior" Duration="500" AutomaticallyStart="False" />
             </interactivity:Interaction.Behaviors>
@@ -54,7 +56,7 @@
                 <ProgressRing IsActive="True" Width="100" Height="100" />
             </Border>
         </Canvas>
-    </Canvas>
+    </Grid>
     <Page.TopAppBar>
         <CommandBar VerticalContentAlignment="Center" VerticalAlignment="Center">
             <CommandBar.Content>
