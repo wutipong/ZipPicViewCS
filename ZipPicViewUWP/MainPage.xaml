@@ -37,7 +37,6 @@
                     </Grid>
                 </SplitView.Pane>
             </SplitView>
-            <controls:InAppNotification x:Name="inAppNotification" Height="100"/>
             <interactivity:Interaction.Behaviors>
                 <behaviors:Blur x:Name="BlurBehavior" Duration="500" AutomaticallyStart="False" />
             </interactivity:Interaction.Behaviors>
@@ -56,6 +55,9 @@
                 <ProgressRing IsActive="True" Width="100" Height="100" />
             </Border>
         </Canvas>
+        <Grid>
+            <controls:InAppNotification x:Name="inAppNotification"/>
+        </Grid>
     </Grid>
     <Page.TopAppBar>
         <CommandBar VerticalContentAlignment="Center" VerticalAlignment="Center">
@@ -65,7 +67,9 @@
             <AppBarToggleButton x:Name="fullscreenButton" Icon="FullScreen" Label="FullScreen" Checked="fullscreenButton_Checked" Unchecked="fullscreenButton_Unchecked" />
             <AppBarSeparator />
             <AppBarButton x:Name="openFileButton" Icon="OpenFile" Label="Open File" Click="openFileButton_Click" />
-            <AppBarButton x:Name="openFolderButton" Icon="Folder" Label="Open Folder" Click="openFolderButton_Click" />
+            <AppBarButton x:Name="openFolderButton" Icon="Folder" Label="Open Folder" Click="openFolderButton_Click"/>
+            <AppBarSeparator Visibility="Collapsed"/>
+            <AppBarButton x:Name="castButton" Icon="Remote" Label="Cast Image" Click="castButton_Click"  Visibility="Collapsed"/>
         </CommandBar>
     </Page.TopAppBar>
 </Page>

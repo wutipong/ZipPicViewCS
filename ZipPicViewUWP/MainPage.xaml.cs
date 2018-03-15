@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Media.Casting;
 using Windows.Storage.Pickers;
@@ -32,6 +33,7 @@ namespace ZipPicViewUWP
         private string filename;
         private PrintHelper printHelper;
         private DisplayRequest displayRequest;
+        private CastingConnection castingConnection = null;
 
         private string FileName
         {
@@ -165,24 +167,18 @@ namespace ZipPicViewUWP
                 ApplicationContentMarginLeft = 0,
                 ApplicationContentMarginTop = 0
             };
-
-            var picker = new CastingDevicePicker();
-            picker.Filter.SupportsPictures = true;
-            picker.CastingDeviceSelected += Picker_CastingDeviceSelected;
-            picker.Show(new Windows.Foundation.Rect(50, 50, 100, 100));
         }
 
         private async void Picker_CastingDeviceSelected(CastingDevicePicker sender, CastingDeviceSelectedEventArgs args)
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
             {
-                CastingConnection connection = args.SelectedCastingDevice.CreateCastingConnection();
+                castingConnection = args.SelectedCastingDevice.CreateCastingConnection();
                 
-                connection.ErrorOccurred += Connection_ErrorOccurred;
-                connection.StateChanged += Connection_StateChanged;
+                castingConnection.ErrorOccurred += Connection_ErrorOccurred;
+                castingConnection.StateChanged += Connection_StateChanged;
 
-                await connection.RequestStartCastingAsync(image.GetAsCastingSource());
-                
+                castingConnection.Source = image.GetAsCastingSource();
             });
         }
 
@@ -196,6 +192,7 @@ namespace ZipPicViewUWP
 
         private async void Connection_ErrorOccurred(CastingConnection sender, CastingConnectionErrorOccurredEventArgs args)
         {
+            castingConnection = null;
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 inAppNotification.Show("Casting Error Occured: " + args.Message, 2000);
@@ -419,8 +416,15 @@ namespace ZipPicViewUWP
             var source = new SoftwareBitmapSource();
             await source.SetBitmapAsync(await createBitmapTask);
             image.Source = source;
-            
+
             ShowImage();
+
+            if (castingConnection != null)
+            {
+                await castingConnection.DisconnectAsync();
+                await castingConnection.RequestStartCastingAsync(image.GetAsCastingSource());
+            }
+
             if (viewerPanel.Visibility == Visibility.Collapsed)
                 imageBorder.Visibility = Visibility.Collapsed;
 
@@ -619,6 +623,19 @@ namespace ZipPicViewUWP
             printHelper.AddFrameworkElementToPrint(image);
 
             await printHelper.ShowPrintUIAsync("ZipPicView - " + currentImageFile.ExtractFilename());
+        }
+
+        private void castButton_Click(object sender, RoutedEventArgs e)
+        {
+            var transform = castButton.TransformToVisual(Window.Current.Content as UIElement);
+            var pt = transform.TransformPoint(new Point(0, 0));
+
+
+            var picker = new CastingDevicePicker();
+            picker.Filter.SupportsPictures = true;
+            picker.CastingDeviceSelected += Picker_CastingDeviceSelected;
+
+            picker.Show(new Windows.Foundation.Rect(pt.X, pt.Y, 100, 100), Placement.Below);
         }
     }
 }
