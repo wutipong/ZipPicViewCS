@@ -1,1 +1,1 @@
-C:\Users\mr_ta\Source\Repos\ZipPicViewCS\ZipPicViewUWP\bin\ARM\Release\Upload\ZipPicViewUWP_1.2.0.0\ZipPicViewUWP_1.2.0.0_x86_x64_arm.appxbundle
+D:\Documents\Visual Studio 2017\Projects\ZipPicViewCS\ZipPicViewUWP\bin\ARM\Release\Upload\ZipPicViewUWP_1.2.2.0\ZipPicViewUWP_1.2.2.0_x86_x64_arm.appxbundle
