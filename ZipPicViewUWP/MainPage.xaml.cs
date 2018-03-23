@@ -67,7 +67,10 @@ namespace ZipPicViewUWP
             var (list, error) = await provider.GetFolderEntries();
 
             if (error != null)
+            {
+                dialog.Hide();
                 return error;
+            }
 
             folderList = list;
 
