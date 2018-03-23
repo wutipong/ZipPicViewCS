@@ -70,8 +70,8 @@
             <AppBarButton x:Name="openFolderButton" Icon="Folder" Label="Open Folder" Click="openFolderButton_Click"/>
             <AppBarSeparator Visibility="Collapsed"/>
             <AppBarButton x:Name="castButton" Icon="Remote" Label="Cast Image" Click="castButton_Click"  Visibility="Collapsed"/>
-            <AppBarSeparator Visibility="Collapsed"/>
-            <AppBarButton x:Name="aboutButton" Icon="Help" Label="About" Click="aboutButton_Click" />
+            <AppBarSeparator/>
+            <AppBarButton x:Name="aboutButton" Icon="Help" Label="About" Click="aboutButton_Click"  />
         </CommandBar>
     </Page.TopAppBar>
 </Page>

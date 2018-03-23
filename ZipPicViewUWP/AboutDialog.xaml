@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Title="About"
     PrimaryButtonText="Close"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick" FontWeight="Normal">
+    FontWeight="Normal">
     <StackPanel>
         <TextBlock Foreground="{StaticResource SystemControlHighlightListAccentMediumBrush}" FontWeight="Bold">ZipPicView </TextBlock>
         <TextBlock x:Name="Version">($version)</TextBlock>

@@ -170,7 +170,7 @@ namespace ZipPicViewUWP
 
         private async void Picker_CastingDeviceSelected(CastingDevicePicker sender, CastingDeviceSelectedEventArgs args)
         {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 castingConnection = args.SelectedCastingDevice.CreateCastingConnection();
                 
