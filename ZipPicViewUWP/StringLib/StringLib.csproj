@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>ZipPicViewUWP.StringLib</RootNamespace>
+    <AssemblyName>ZipPicViewUWP.StringLib</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="StringLib.Tests\**" />
+    <EmbeddedResource Remove="StringLib.Tests\**" />
+    <None Remove="StringLib.Tests\**" />
+  </ItemGroup>
+
+</Project>

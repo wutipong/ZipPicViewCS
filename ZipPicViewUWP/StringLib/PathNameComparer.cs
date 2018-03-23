@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZipPicViewUWP
+namespace ZipPicViewUWP.StringLib
 {
-    internal class PathNameComparer
+    public class PathNameComparer
     {
         public static Comparison<string> FileNameComparer = (string s1, string s2) =>
         {
