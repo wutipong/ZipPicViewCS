@@ -1,0 +1,21 @@
+﻿<ContentDialog
+    x:Class="ZipPicViewUWP.AboutDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ZipPicViewUWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="About"
+    PrimaryButtonText="Close"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick" FontWeight="Normal">
+    <StackPanel>
+        <TextBlock Foreground="{StaticResource SystemControlHighlightListAccentMediumBrush}" FontWeight="Bold">ZipPicView </TextBlock>
+        <TextBlock x:Name="Version">($version)</TextBlock>
+        <TextBlock>Copyright ©2017-2018 Wutipong Wongsakuldej</TextBlock>
+        <TextBlock>Licensed Under 
+            <Hyperlink NavigateUri="https://github.com/wutipong/ZipPicViewCS/blob/master/ZipPicViewUWP/LICENSE">MIT License</Hyperlink>
+        </TextBlock>
+        <HyperlinkButton NavigateUri="https://github.com/wutipong/ZipPicViewCS/blob/master/ZipPicViewUWP/">GitHub</HyperlinkButton>
+    </StackPanel>
+</ContentDialog>

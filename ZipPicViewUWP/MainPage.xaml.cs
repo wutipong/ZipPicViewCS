@@ -625,5 +625,11 @@ namespace ZipPicViewUWP
 
             picker.Show(new Windows.Foundation.Rect(pt.X, pt.Y, 100, 100), Placement.Below);
         }
+
+        private async void aboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            AboutDialog dialog = new AboutDialog();
+            await dialog.ShowAsync();
+        }
     }
 }
