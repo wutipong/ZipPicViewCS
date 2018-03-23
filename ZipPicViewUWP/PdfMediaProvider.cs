@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.Data.Pdf;
+using Windows.Graphics.Imaging;
 
 namespace ZipPicViewUWP
 {
@@ -49,14 +50,35 @@ namespace ZipPicViewUWP
             });
         }
 
-        public override Task<(Stream, Exception error)> OpenEntryAsync(string entry)
+        public override async Task<(Stream stream, string suggestedFileName, Exception error)> OpenEntryAsync(string entry)
         {
-            throw new NotImplementedException("not supported yet");
+            var (irs, error) = await OpenEntryAsRandomAccessStreamAsync(entry);
+
+            if (error != null)
+                return (null, null, error);
+
+            var decoder = await BitmapDecoder.CreateAsync(irs);
+            var bitmap = decoder.GetSoftwareBitmapAsync();
+
+            var outputIrs = new InMemoryRandomAccessStream();
+
+            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, outputIrs);
+            encoder.SetSoftwareBitmap(await bitmap);
+
+            await encoder.FlushAsync();
+
+            var outputStream = new MemoryStream();
+            outputIrs.Seek(0);
+            outputIrs.AsStreamForRead().CopyTo(outputStream);
+
+            outputIrs.Dispose();
+            outputStream.Seek(0, SeekOrigin.Begin);
+
+            return (outputStream, entry + ".png", null);
         }
 
         public override async Task<(IRandomAccessStream, Exception error)> OpenEntryAsRandomAccessStreamAsync(string entry)
         {
-
             var pageindex = uint.Parse(entry);
 
             var page = pdfDocument.GetPage(pageindex);

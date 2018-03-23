@@ -7,9 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Graphics.Imaging;
+using Windows.Media.Casting;
 using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.System.Display;
 using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -29,6 +32,8 @@ namespace ZipPicViewUWP
         private MediaElement clickSound;
         private string filename;
         private PrintHelper printHelper;
+        private DisplayRequest displayRequest;
+        private CastingConnection castingConnection = null;
 
         private string FileName
         {
@@ -121,7 +126,11 @@ namespace ZipPicViewUWP
 
                 if (children.Length > 0)
                 {
-                    var t = SetFolderThumbnail(children[0], item);
+                    var cover = provider.FileFilter.FindCoverPage(children);
+                    if (cover != null)
+                    {
+                        var t = SetFolderThumbnail(cover, item);
+                    }
                 }
             }
         }
@@ -131,8 +140,8 @@ namespace ZipPicViewUWP
             SoftwareBitmapSource source = null;
             var output = await provider.OpenEntryAsRandomAccessStreamAsync(entry);
 
-            if (output.Item2 != null)
-                throw output.Item2;
+            if (output.error != null)
+                throw output.error;
 
             var bitmap = await ImageHelper.CreateResizedBitmap(output.Item1, 40, 50);
             source = new SoftwareBitmapSource();
@@ -156,6 +165,36 @@ namespace ZipPicViewUWP
                 ApplicationContentMarginLeft = 0,
                 ApplicationContentMarginTop = 0
             };
+        }
+
+        private async void Picker_CastingDeviceSelected(CastingDevicePicker sender, CastingDeviceSelectedEventArgs args)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            {
+                castingConnection = args.SelectedCastingDevice.CreateCastingConnection();
+                
+                castingConnection.ErrorOccurred += Connection_ErrorOccurred;
+                castingConnection.StateChanged += Connection_StateChanged;
+
+                castingConnection.Source = image.GetAsCastingSource();
+            });
+        }
+
+        private async void Connection_StateChanged(CastingConnection sender, object args)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                inAppNotification.Show("Casting Connection State Changed: " + sender.State, 2000);
+            });
+        }
+
+        private async void Connection_ErrorOccurred(CastingConnection sender, CastingConnectionErrorOccurredEventArgs args)
+        {
+            castingConnection = null;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                inAppNotification.Show("Casting Error Occured: " + args.Message, 2000);
+            });
         }
 
         private void ImageControl_OnPreCount(object sender)
@@ -202,12 +241,11 @@ namespace ZipPicViewUWP
             else
             {
                 Stream stream = null;
-                bool isEncrypted;
                 try
                 {
                     stream = await selected.OpenStreamForReadAsync();
 
-                    var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out isEncrypted);
+                    var archive = ArchiveMediaProvider.TryOpenArchive(stream, null, out bool isEncrypted);
                     if (isEncrypted)
                     {
                         var dialog = new PasswordDialog();
@@ -368,8 +406,19 @@ namespace ZipPicViewUWP
             image.Source = source;
 
             ShowImage();
+
+            if (castingConnection != null)
+            {
+                await castingConnection.DisconnectAsync();
+                await castingConnection.RequestStartCastingAsync(image.GetAsCastingSource());
+            }
+
             if (viewerPanel.Visibility == Visibility.Collapsed)
                 imageBorder.Visibility = Visibility.Collapsed;
+
+            displayRequest = new DisplayRequest();
+            displayRequest.RequestActive();
+
         }
 
         private void ShowImage()
@@ -391,9 +440,8 @@ namespace ZipPicViewUWP
         {
             foreach (var child in canvas.Children)
             {
-                if (child is FrameworkElement)
+                if (child is FrameworkElement fe)
                 {
-                    var fe = (FrameworkElement)child;
                     fe.Width = e.NewSize.Width;
                     fe.Height = e.NewSize.Height;
                 }
@@ -401,9 +449,8 @@ namespace ZipPicViewUWP
 
             foreach (var child in viewerPanel.Children)
             {
-                if (child is FrameworkElement)
+                if (child is FrameworkElement fe)
                 {
-                    var fe = (FrameworkElement)child;
                     fe.Width = e.NewSize.Width;
                     fe.Height = e.NewSize.Height;
                 }
@@ -425,6 +472,12 @@ namespace ZipPicViewUWP
             thumbnailGrid.IsEnabled = true;
             imageControl.AutoEnabled = false;
             splitView.IsEnabled = true;
+
+            if (displayRequest != null)
+            {
+                displayRequest.RequestRelease();
+                displayRequest = null;
+            }
         }
 
         private async void imageControl_NextButtonClick(object sender, RoutedEventArgs e)
@@ -440,24 +493,27 @@ namespace ZipPicViewUWP
         private async void imageControl_SaveButtonClick(object sender, RoutedEventArgs e)
         {
             var filename = fileList[currentFileIndex];
-            var filenameWithoutPath = filename;
+            var (stream, suggestedFileName, error) = await provider.OpenEntryAsync(filename);
 
-            var picker = new FileSavePicker();
+            var picker = new FileSavePicker
+            {
+                SuggestedFileName = suggestedFileName
+            };
 
-            picker.SuggestedFileName = filename.ExtractFilename();
             picker.FileTypeChoices.Add("All", new List<string>() { "." });
             var file = await picker.PickSaveFileAsync();
-            if (file == null) return;
+            if (file != null)
+            {
+                var output = await file.OpenStreamForWriteAsync();
 
-            var output = await file.OpenStreamForWriteAsync();
-            var input = await provider.OpenEntryAsync(filename);
-            if (input.error != null)
-                throw input.error;
+                if (error != null)
+                    throw error;
 
-            input.Item1.CopyTo(output);
-
-            input.Item1.Dispose();
-            output.Dispose();
+                stream.CopyTo(output);
+                output.Dispose();
+            }
+            stream.Dispose();
+            
         }
 
         private async Task AdvanceImage(int step)
@@ -555,6 +611,19 @@ namespace ZipPicViewUWP
             printHelper.AddFrameworkElementToPrint(image);
 
             await printHelper.ShowPrintUIAsync("ZipPicView - " + currentImageFile.ExtractFilename());
+        }
+
+        private void castButton_Click(object sender, RoutedEventArgs e)
+        {
+            var transform = castButton.TransformToVisual(Window.Current.Content as UIElement);
+            var pt = transform.TransformPoint(new Point(0, 0));
+
+
+            var picker = new CastingDevicePicker();
+            picker.Filter.SupportsPictures = true;
+            picker.CastingDeviceSelected += Picker_CastingDeviceSelected;
+
+            picker.Show(new Windows.Foundation.Rect(pt.X, pt.Y, 100, 100), Placement.Below);
         }
     }
 }
