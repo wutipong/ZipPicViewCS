@@ -10,14 +10,18 @@ namespace ZipPicViewUWP.StringLib
     {
         public static Comparison<string> FileNameComparer = (string s1, string s2) =>
         {
-            string s1WithoutExtension = s1.Contains('.') ? s1.Substring(0, s1.LastIndexOf(".")) : s1;
-            string s2WithoutExtension = s2.Contains('.') ? s2.Substring(0, s2.LastIndexOf(".")) : s2;
+            var iter1 = s1.GetEnumerator();
+            var iter2 = s2.GetEnumerator();
 
-            if (Int32.TryParse(s1WithoutExtension, out int i1) && Int32.TryParse(s2WithoutExtension, out int i2))
+            while(iter1.MoveNext() && iter2.MoveNext())
             {
-                return i1.CompareTo(i2);
+                if (iter1.Current > iter2.Current) return 1;
+                if (iter1.Current > iter2.Current) return -1;
             }
-            return s1.CompareTo(s2);
+
+            if (s1.Length > s2.Length) return 1;
+            else if (s1.Length < s2.Length) return -1;
+            else return 0;
         };
 
         public static Comparison<string> FolderNameComparer = (string s1, string s2) =>
@@ -26,5 +30,28 @@ namespace ZipPicViewUWP.StringLib
             else if (s2 == "\\") return 1;
             else return FileNameComparer.Invoke(s1, s2);
         };
+
+        public static (int results, bool hasNext) ExtractNumber(CharEnumerator iter)
+        {
+            var output = 0;
+
+            bool hasNext = true;
+            for(int i = 0; char.IsDigit(iter.Current); i++)
+            {
+                if(i!=0)
+                {
+                    output *= 10;
+                }
+                output += int.Parse("" + iter.Current);
+
+                if (iter.MoveNext() == false)
+                {
+                    hasNext = false;
+                    break;
+                }
+            } 
+
+            return (output, hasNext);
+        }
     }
 }
