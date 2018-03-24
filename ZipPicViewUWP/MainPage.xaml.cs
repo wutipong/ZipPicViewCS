@@ -19,6 +19,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using ZipPicViewUWP.StringLib;
+using NaturalSort.Extension;
 
 namespace ZipPicViewUWP
 {
@@ -95,7 +96,13 @@ namespace ZipPicViewUWP
 
         private async Task RebuildSubFolderList()
         {
-            Array.Sort(folderList, PathNameComparer.FolderNameComparer);
+            var comparer = StringComparer.InvariantCultureIgnoreCase.WithNaturalSort();
+            Array.Sort(folderList, (s1,s2)=> {
+
+                if (s1 == "\\") return -1;
+                else if (s2 == "\\") return 1;
+                else return comparer.Compare(s1, s2);
+            });
 
             foreach (var f in folderList)
             {
@@ -322,7 +329,7 @@ namespace ZipPicViewUWP
 
             fileList = results.Item1;
 
-            Array.Sort(fileList, PathNameComparer.FileNameComparer);
+            Array.Sort(fileList, StringComparer.InvariantCultureIgnoreCase.WithNaturalSort());
 
             try
             {
