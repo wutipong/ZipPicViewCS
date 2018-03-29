@@ -146,12 +146,12 @@ namespace ZipPicViewUWP
         private async Task SetFolderThumbnail(string entry, FolderListItem item)
         {
             SoftwareBitmapSource source = null;
-            var output = await provider.OpenEntryAsRandomAccessStreamAsync(entry);
+            var (stream, error) = await provider.OpenEntryAsRandomAccessStreamAsync(entry);
 
-            if (output.error != null)
-                throw output.error;
-
-            var bitmap = await ImageHelper.CreateResizedBitmap(output.Item1, 40, 50);
+            if (error != null)
+                throw error;
+            var decoder = await BitmapDecoder.CreateAsync(stream);
+            var bitmap = await ImageHelper.CreateResizedBitmap(decoder, 40, 50);
             source = new SoftwareBitmapSource();
             await source.SetBitmapAsync(bitmap);
 
@@ -343,13 +343,13 @@ namespace ZipPicViewUWP
                     thumbnail.UserData = file;
                     thumbnailGrid.Items.Add(thumbnail);
 
-                    var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
-                    if (stream.error != null)
+                    var (stream, error) = await provider.OpenEntryAsRandomAccessStreamAsync(file);
+                    if (error != null)
                     {
-                        throw stream.error;
+                        throw error;
                     }
-
-                    SoftwareBitmap bitmap = await ImageHelper.CreateResizedBitmap(stream.Item1, 200, 200);
+                    var decoder = await BitmapDecoder.CreateAsync(stream);
+                    SoftwareBitmap bitmap = await ImageHelper.CreateResizedBitmap(decoder, 200, 200);
                     var source = new SoftwareBitmapSource();
                     var setSourceTask = source.SetBitmapAsync(bitmap);
 
@@ -397,20 +397,24 @@ namespace ZipPicViewUWP
             uint width = (uint)canvas.RenderSize.Width;
             uint height = (uint)canvas.RenderSize.Height;
 
-            var createBitmapTask = Task.Run(async () =>
+            var createBitmapTask = Task.Run<(SoftwareBitmap Bitmap, uint PixelWidth, uint PixelHeight)>(async () =>
             {
-                var stream = await provider.OpenEntryAsRandomAccessStreamAsync(file);
-                var bitmap = await ImageHelper.CreateResizedBitmap(stream.Item1, width, height);
+                var (stream, error) = await provider.OpenEntryAsRandomAccessStreamAsync(file);
+                var decoder = await BitmapDecoder.CreateAsync(stream);
+                var output = await ImageHelper.CreateResizedBitmap(decoder, width, height);
 
-                return bitmap;
+                return (output, decoder.PixelWidth, decoder.PixelHeight);
             });
 
             await delayTask;
             HideImage();
             imageControl.Filename = file.ExtractFilename();
+            
 
             var source = new SoftwareBitmapSource();
-            await source.SetBitmapAsync(await createBitmapTask);
+            var (bitmap, origWidth, origHeight) = await createBitmapTask;
+            await source.SetBitmapAsync(bitmap);
+            imageControl.DimensionText = string.Format("{0}x{1}", origWidth, origHeight);
             image.Source = source;
 
             ShowImage();

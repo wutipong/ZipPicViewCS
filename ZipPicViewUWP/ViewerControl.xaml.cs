@@ -124,6 +124,12 @@ namespace ZipPicViewUWP
             }
         }
 
+        public string DimensionText
+        {
+            get { return originalDimension.Text; }
+            set { originalDimension.Text = value; }
+        }
+
         public event RoutedEventHandler NextButtonClick
         {
             add { nextButtonClick += value; }

@@ -12,11 +12,9 @@ namespace ZipPicViewUWP
     {
         private enum ImageOrientation { Portrait, Landscape };
 
-        public static async Task<SoftwareBitmap> CreateResizedBitmap(IRandomAccessStream stream, uint expectedWidth, uint expectedHeight)
+        public static async Task<SoftwareBitmap> CreateResizedBitmap(BitmapDecoder decoder, uint expectedWidth, uint expectedHeight)
         {
             var expectedOrientation = expectedWidth > expectedHeight ? ImageOrientation.Landscape : ImageOrientation.Portrait;
-
-            var decoder = await BitmapDecoder.CreateAsync(stream);
 
             var width = decoder.PixelWidth;
             var height = decoder.PixelHeight;
