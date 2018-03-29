@@ -3,12 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Graphics.Imaging;
 
 namespace ZipPicViewUWP
 {
     class PhysicalFileFilter : FileFilter
     {
         private readonly string[] coverKeywords = new string[]{ "cover", "top" };
+        private static string[] ImageFileExtensions
+        {
+            get
+            {
+                if(formats == null)
+                {
+                    List<string> exts = new List<string>();
+                    foreach(var decoderInfo in BitmapDecoder.GetDecoderInformationEnumerator())
+                    {
+                        exts.AddRange(decoderInfo.FileExtensions);
+                    }
+
+                    formats = exts.ToArray();
+                }
+                return formats;
+            }
+        }
+
+        private static string[] formats = null; 
 
         public override string FindCoverPage(string[] filenames)
         {
@@ -24,15 +44,10 @@ namespace ZipPicViewUWP
 
         public override bool IsImageFile(string filename)
         {
-            int indexOfDot = filename.LastIndexOf(".");
-            if (indexOfDot == -1) return false;
 
-            string extension = filename.Substring(indexOfDot + 1).ToLower(); ;
-
-            string[] formats = { "jpg", "png", "jpeg" };
-            foreach (var format in formats)
+            foreach (var format in ImageFileExtensions)
             {
-                if (format == extension) return true;
+                if (filename.ToLower().EndsWith(format.ToLower())) return true;
             }
 
             return false;
