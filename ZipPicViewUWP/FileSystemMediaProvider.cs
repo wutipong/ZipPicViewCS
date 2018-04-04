@@ -35,14 +35,16 @@ namespace ZipPicViewUWP
 
                 var output = new List<string>(files.Count);
 
-                var startIndex = subFolder.Path.Length;
+                var startIndex = folder.Path.Length == 3 ?
+                    folder.Path.Length :
+                    folder.Path.Length + 1;
 
                 foreach (var path in
                     from f in files
                     where FilterImageFileType(f.Name)
                     select f.Path)
                 {
-                    output.Add(path.Substring(folder.Path.Length + 1));
+                    output.Add(path.Substring(startIndex));
                 }
                 return (output.ToArray(), null);
             }
@@ -65,7 +67,10 @@ namespace ZipPicViewUWP
 
                 var output = new List<string>(subFolders.Count) { Root };
 
-                var startIndex = folder.Path.Length + 1;
+                var startIndex = folder.Path.Length == 3 ?
+                    folder.Path.Length :
+                    folder.Path.Length + 1;
+
                 foreach (var folder in subFolders)
                 {
                     output.Add(folder.Path.Substring(startIndex));
